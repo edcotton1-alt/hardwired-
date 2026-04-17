@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encoding Brand Difference · Hardwired № 001</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Geist+Mono:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,600&family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #f9f8f6;
+  --bg-1: #f2f0ed;
+  --bg-2: #eceae6;
+  --bg-3: #e4e1dc;
+  --ink: #111110;
+  --ink-mute: #6b6860;
+  --ink-dim: #a8a49e;
+  --rule: rgba(17,17,16,0.08);
+  --rule-2: rgba(17,17,16,0.13);
+  --accent: #1a1a18;
+  --accent-soft: rgba(17,17,16,0.06);
+  --accent-glow: rgba(17,17,16,0.12);
+  --hi: #d4590a;
+  --hi-soft: rgba(212,89,10,0.10);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:400;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}
+@media(hover:none){body{cursor:auto}}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--hi);color:#fff}
+
+/* CURSOR */
+#cur-dot,#cur-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%;will-change:transform}
+#cur-dot{width:5px;height:5px;background:var(--ink);transform:translate(-50%,-50%)}
+#cur-ring{width:30px;height:30px;border:1px solid rgba(17,17,16,0.3);transform:translate(-50%,-50%);transition:width .25s ease,height .25s ease,border-color .25s ease}
+body.hov #cur-ring{width:48px;height:48px;border-color:var(--hi)}
+body.hov #cur-dot{background:var(--hi)}
+@media(hover:none){#cur-dot,#cur-ring{display:none}}
+
+/* ATMOSPHERE - light, very subtle */
+.atm{display:none}
+.noise-layer{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.018;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* PROGRESS */
+#prog-rail{position:fixed;top:0;left:0;right:0;height:2px;z-index:200;background:transparent}
+#prog-bar{height:100%;width:0%;background:var(--ink);transition:width .08s linear}
+
+/* FLOATING NAV */
+.topnav{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:100;background:rgba(249,248,246,0.85);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--rule-2);border-radius:100px;padding:6px;display:flex;align-items:center;gap:2px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.02em;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.topnav .brand{padding:8px 14px 8px 12px;color:var(--ink);border-right:1px solid var(--rule-2);display:flex;align-items:center;gap:8px;margin-right:4px;font-weight:500;white-space:nowrap}
+.topnav .brand::before{content:"";width:6px;height:6px;background:var(--hi);border-radius:50%;animation:blink 2.2s ease-in-out infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.navlink{padding:8px 13px;border-radius:100px;color:var(--ink-mute);transition:background .2s,color .2s;display:flex;align-items:center;gap:5px;cursor:none;white-space:nowrap}
+.navlink:hover{background:var(--bg-2);color:var(--ink)}
+.navlink.on{background:var(--bg-3);color:var(--ink);font-weight:600}
+.nav-num{opacity:.5;font-size:10px}
+.navlink.on .nav-num{opacity:.5}
+@media(max-width:640px){.topnav{top:10px;padding:4px;font-size:10px}.topnav .brand{padding:6px 10px;font-size:10px}.navlink{padding:6px 9px}.nav-num{display:none}}
+
+/* SIDE RAIL */
+.sidemeta{position:fixed;left:20px;top:50%;transform:translateY(-50%) rotate(-90deg);transform-origin:left center;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-dim);z-index:40;white-space:nowrap;display:flex;gap:20px;align-items:center}
+.sidemeta .dot{color:var(--hi)}
+@media(max-width:900px){.sidemeta{display:none}}
+
+/* ===================== PAGES (scroll-snap) ===================== */
+.page-wrap{scroll-snap-type:y mandatory;overflow-y:scroll;height:100vh}
+.snap{scroll-snap-align:start;scroll-snap-stop:always;min-height:100vh}
+
+/* ===================== COVER ===================== */
+.cover{min-height:100vh;padding:100px 52px 60px;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.cover-top{display:grid;grid-template-columns:1fr auto 1fr;gap:30px;align-items:baseline;padding-bottom:18px;border-bottom:1px solid var(--rule)}
+.cover-top span{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.cover-top .mid{text-align:center;color:var(--hi)}
+.cover-top .r{text-align:right}
+
+.cover-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:70px 0 40px}
+.cover-kicker{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:44px;display:flex;align-items:center;gap:16px}
+.cover-kicker::before,.cover-kicker::after{content:"";height:1px;background:var(--ink-dim)}
+.cover-kicker::before{width:40px}
+.cover-kicker::after{flex:1}
+
+.cover-h1{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(56px,10.5vw,190px);line-height:.88;letter-spacing:-.035em;color:var(--ink);margin-bottom:52px}
+.cover-h1 em{font-style:italic;color:var(--hi)}
+.w{display:inline-block;opacity:0;transform:translateY(36px);animation:rise .9s cubic-bezier(.16,1,.3,1) forwards}
+.w1{animation-delay:.08s}.w2{animation-delay:.18s}.w3{animation-delay:.28s}.w4{animation-delay:.38s}.w5{animation-delay:.5s}.w6{animation-delay:.6s}.w7{animation-delay:.7s}
+@keyframes rise{to{opacity:1;transform:translateY(0)}}
+.cover-lede{max-width:660px;font-size:clamp(15px,1.4vw,18px);line-height:1.55;color:var(--ink-mute);opacity:0;animation:rise .9s cubic-bezier(.16,1,.3,1) .85s forwards}
+.cover-lede strong{color:var(--ink);font-weight:500}
+
+.cover-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);margin-top:0;opacity:0;animation:rise .9s cubic-bezier(.16,1,.3,1) 1.05s forwards}
+.stat-cell{padding:22px 16px 8px;border-right:1px solid var(--rule)}
+.stat-cell:last-child{border-right:none}
+.stat-label{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:8px;display:block}
+.stat-val{font-family:'Instrument Serif',serif;font-size:clamp(26px,3.2vw,40px);line-height:1;letter-spacing:-.02em;color:var(--ink);display:block}
+.stat-val em{font-style:italic;color:var(--hi)}
+.stat-sub{font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:var(--ink-mute);margin-top:4px;display:block}
+.stat-sub a{color:var(--hi)}
+@media(max-width:700px){.cover{padding:86px 22px 40px}.cover-top{grid-template-columns:1fr 1fr;gap:10px}.cover-top .r{display:none}.cover-stats{grid-template-columns:1fr 1fr}}
+
+/* ===================== TOC / BENTO ===================== */
+.bento-section{padding:120px 52px;background:var(--bg)}
+.bento-header{max-width:1360px;margin:0 auto 56px;display:grid;grid-template-columns:180px 1fr;gap:40px;align-items:start;padding-bottom:32px;border-bottom:1px solid var(--rule)}
+.bento-tag{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);padding-top:14px}
+.bento-header h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(34px,5vw,68px);line-height:.98;letter-spacing:-.03em;color:var(--ink)}
+.bento-header h2 em{font-style:italic;color:var(--hi)}
+
+.grid{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.tile{background:var(--bg-1);border:1px solid var(--rule-2);border-radius:18px;padding:26px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative;transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s ease,background .3s ease;cursor:none}
+.tile::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(17,17,16,0.04),transparent 55%);opacity:0;transition:opacity .35s ease;pointer-events:none;border-radius:inherit}
+.tile:hover{transform:translateY(-3px);border-color:rgba(17,17,16,0.22);background:var(--bg)}
+.tile:hover::after{opacity:1}
+a.tile:hover{border-color:rgba(17,17,16,0.28)}
+
+.c-6{grid-column:span 6}.c-4{grid-column:span 4}.c-3{grid-column:span 3}.c-12{grid-column:span 12}
+.r-2{grid-row:span 2}
+
+.tile-num{font-family:'Instrument Serif',serif;font-style:italic;font-size:58px;line-height:1;letter-spacing:-.04em;color:var(--ink)}
+.tile-tag{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim)}
+.tile-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.tile-title{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,3vw,42px);line-height:1;letter-spacing:-.025em;color:var(--ink);margin-bottom:14px}
+.tile-title em{font-style:italic;color:var(--hi)}
+.tile-desc{font-size:14px;line-height:1.55;color:var(--ink-mute);margin-bottom:18px}
+.tile-cta{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute);display:inline-flex;align-items:center;gap:8px;border:1px solid var(--rule-2);border-radius:100px;padding:9px 14px;background:var(--bg-2);transition:background .25s,border-color .25s,color .25s,gap .25s;align-self:flex-start}
+.tile:hover .tile-cta{background:var(--ink);color:var(--bg);border-color:var(--ink);gap:14px}
+
+.big-n{font-family:'Instrument Serif',serif;font-size:clamp(52px,5.5vw,80px);line-height:.95;letter-spacing:-.03em;color:var(--ink);margin:10px 0 6px}
+.big-n em{font-style:italic;color:var(--hi)}
+.n-label{font-size:13px;color:var(--ink-mute);line-height:1.4}
+
+.quote-text{font-family:'Instrument Serif',serif;font-size:clamp(20px,2.2vw,27px);line-height:1.22;letter-spacing:-.015em;color:var(--ink)}
+.quote-text em{font-style:italic;color:var(--hi)}
+
+.author-row{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center}
+.av{width:52px;height:52px;border-radius:50%;background:var(--bg-3);border:1.5px solid var(--rule-2);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-style:italic;font-size:24px;color:var(--ink);flex-shrink:0}
+.av-name{font-family:'Instrument Serif',serif;font-size:clamp(24px,2.5vw,32px);letter-spacing:-.02em;color:var(--ink);line-height:1}
+.av-name em{font-style:italic;color:var(--hi)}
+.av-role{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);margin-top:6px}
+.av-cta{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border:1px solid var(--rule-2);border-radius:100px;transition:background .25s,color .25s,gap .25s;white-space:nowrap;cursor:none}
+.av-cta:hover{background:var(--ink);color:var(--bg);gap:14px}
+
+@media(max-width:1000px){.grid{grid-template-columns:repeat(6,1fr)}.c-6,.c-3{grid-column:span 6}.c-4{grid-column:span 6}.c-12{grid-column:span 6}.c-3.r-1{grid-column:span 3}.author-row{grid-template-columns:1fr;gap:16px}.av-cta{align-self:flex-start}}
+@media(max-width:640px){.bento-section{padding:80px 22px}.bento-header{grid-template-columns:1fr;gap:14px}.grid{grid-template-columns:1fr}.c-3{grid-column:1}.author-row{grid-template-columns:auto 1fr;gap:16px}}
+
+/* ===================== CHAPTER OPENER ===================== */
+.opener{min-height:100vh;padding:0;display:grid;grid-template-rows:auto 1fr auto;position:relative;overflow:hidden}
+.opener-top-bar{display:flex;justify-content:space-between;align-items:center;padding:26px 52px;border-bottom:1px solid var(--rule);font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);z-index:2;background:inherit}
+.opener-top-bar .hi{color:var(--hi)}
+.opener-thesis-bar{padding:32px 52px;border-top:1px solid var(--rule);display:grid;grid-template-columns:120px 1fr;gap:40px;align-items:start;z-index:2}
+.opener-thesis-label{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim);padding-top:4px}
+.opener-thesis-text{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;line-height:1.65;color:var(--ink-mute);font-weight:400}
+.opener-thesis-text em{font-style:italic;color:var(--ink);font-weight:500}
+.opener-motif{margin-top:24px;color:var(--ink)}
+@media(max-width:800px){.opener-motif{display:none}}
+
+/* ── CH1: The Finding — data-report feel, stat-forward ─── */
+.ch1-main{display:grid;grid-template-columns:1fr 1fr;align-items:stretch;min-height:0;flex:1;position:relative;z-index:2}
+.ch1-left{padding:52px 52px 48px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid var(--rule-2)}
+.ch1-num-tag{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:16px}
+.ch1-big-stat{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(140px,22vw,320px);line-height:.85;letter-spacing:-.04em;color:var(--ink);user-select:none;margin-left:-4px}
+.ch1-stat-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);margin-top:16px}
+.ch1-right{padding:52px 52px 48px;display:flex;flex-direction:column;justify-content:flex-end;gap:16px}
+.ch1-the{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim)}
+.ch1-title{font-family:'DM Serif Display',serif;font-size:clamp(64px,10vw,148px);line-height:.88;letter-spacing:-.02em;color:var(--ink)}
+.ch1-title em{font-style:italic;color:var(--hi)}
+.ch1-thesis-bar{background:var(--bg-1)}
+
+/* ── CH2: The Diagnosis — fractured urgency, large word ── */
+.ch2-main{display:flex;flex-direction:column;justify-content:flex-end;padding:60px 52px 48px;position:relative;z-index:2;flex:1}
+.ch2-num-row{display:flex;align-items:baseline;gap:24px;margin-bottom:40px}
+.ch2-roman{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(60px,9vw,120px);line-height:1;letter-spacing:-.04em;color:var(--ink-dim)}
+.ch2-num-tag{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)}
+.ch2-the{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:8px}
+.ch2-title{font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(80px,13vw,200px);line-height:.86;letter-spacing:-.03em;color:var(--ink);margin-left:-4px}
+.ch2-title em{font-style:normal;color:var(--hi)}
+.ch2-rule{width:100%;height:1.5px;background:var(--ink);margin:32px 0 0;opacity:.12}
+.ch2-thesis-bar{background:var(--bg-2)}
+
+/* ── CH3: The System — architectural, stacked caps ──────── */
+.ch3-main{display:grid;grid-template-columns:auto 1fr;align-items:stretch;flex:1;position:relative;z-index:2}
+.ch3-roman-col{writing-mode:vertical-rl;transform:rotate(180deg);padding:48px 28px;border-right:1px solid var(--rule-2);display:flex;align-items:center;justify-content:center;background:var(--bg-1)}
+.ch3-roman{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(52px,7vw,96px);letter-spacing:-.02em;color:var(--ink-mute);user-select:none}
+.ch3-right{padding:52px 52px 48px;display:flex;flex-direction:column;justify-content:flex-end;gap:12px}
+.ch3-num-tag{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim)}
+.ch3-the{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:4px}
+.ch3-title-word{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(60px,10vw,148px);line-height:.88;letter-spacing:-.02em;text-transform:uppercase;color:var(--ink)}
+.ch3-title-word em{color:var(--hi);font-style:normal}
+.ch3-thesis-bar{background:var(--bg-1)}
+
+@media(max-width:800px){
+  .ch1-main{grid-template-columns:1fr}.ch1-left{border-right:none;border-bottom:1px solid var(--rule-2);padding:40px 28px 32px}.ch1-right{padding:32px 28px 40px}.ch1-big-stat{font-size:clamp(100px,28vw,200px)}
+  .ch2-main{padding:40px 28px 40px}.ch2-title{font-size:clamp(64px,16vw,120px)}
+  .ch3-main{grid-template-columns:1fr}.ch3-roman-col{writing-mode:horizontal-tb;transform:none;padding:32px 28px 16px;border-right:none;border-bottom:1px solid var(--rule-2)}.ch3-right{padding:28px 28px 40px}
+  .opener-thesis-bar{padding:24px 28px;grid-template-columns:1fr;gap:12px}
+}
+
+/* ===================== CONTENT ===================== */
+.prose{max-width:680px;margin:0 auto;padding:100px 48px 80px}
+@media(max-width:700px){.prose{padding:72px 24px 64px}}
+.sec{margin-bottom:112px}
+.sec:last-child{margin-bottom:0}
+.sec h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(30px,4.5vw,52px);line-height:1.05;letter-spacing:-.025em;margin-bottom:32px;color:var(--ink)}
+.lede{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(21px,2.4vw,28px);line-height:1.38;color:var(--ink);letter-spacing:-.02em;margin-bottom:36px}
+
+/* FIGURES */
+.fig{margin:88px -48px;background:var(--bg-1);border:1px solid var(--rule-2);border-radius:20px;overflow:hidden}
+.fig-top{display:flex;justify-content:space-between;align-items:baseline;padding:24px 44px;border-bottom:1px solid var(--rule);gap:16px}
+.fig-body{padding:52px 44px}
+.fig-cap{padding:22px 44px 26px;border-top:1px solid var(--rule);font-size:13px;line-height:1.65;color:var(--ink-mute)}
+.fig-cap strong{color:var(--ink);font-weight:500}
+@media(max-width:700px){.fig{margin:56px 0}.fig-body{padding:32px 24px}.fig-top{flex-direction:column;align-items:flex-start;gap:6px;padding:18px 24px}.fig-cap{padding:18px 24px 22px}}
+
+/* ===================== CONTENT (continued) ===================== */
+.eyebrow{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:28px;display:flex;align-items:center;gap:14px}
+.sec h2 em{font-style:italic;color:var(--hi)}
+.lede em{font-style:italic;color:var(--hi)}
+.sec p{font-size:17px;line-height:1.78;color:var(--ink-mute);margin-bottom:28px;font-weight:400;letter-spacing:.01em}
+.sec p:last-child{margin-bottom:0}
+.sec p strong{color:var(--ink);font-weight:500;background:linear-gradient(180deg,transparent 62%,rgba(17,17,16,0.07) 62%);padding:0 2px}
+
+/* FIGURES */
+.fig-label{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.fig-title em{font-style:italic;color:var(--hi)}
+
+/* MOATS */
+.moats-grid{display:grid;grid-template-columns:1fr 32px 1fr;gap:16px;align-items:stretch}
+@media(max-width:620px){.moats-grid{grid-template-columns:1fr}}
+.mc-label{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);padding-bottom:10px;border-bottom:1px solid var(--rule);margin-bottom:0}
+.mc.now .mc-label{color:var(--hi)}
+.moat-item{padding:13px 0;border-bottom:1px dashed var(--rule-2);font-size:12.5px;line-height:1.5;color:var(--ink-mute)}
+.moat-item:last-child{border-bottom:none}
+.moat-item strong{font-family:'Instrument Serif',serif;font-weight:400;font-size:17px;color:var(--ink);letter-spacing:-.01em}
+.mc.now .moat-item strong{color:var(--hi);font-style:italic}
+.moats-arrow{display:flex;align-items:center;justify-content:center;color:var(--ink-dim)}
+.moats-arrow svg{width:32px;height:auto}
+@media(max-width:620px){.moats-arrow{transform:rotate(90deg);padding:8px 0}}
+
+/* FLOW */
+.flow{display:grid;grid-template-columns:1fr auto 1fr;gap:22px;align-items:center}
+@media(max-width:620px){.flow{grid-template-columns:1fr}.flow-arr{transform:rotate(90deg);padding:6px 0}}
+.fn{padding:24px 20px;background:var(--bg-2);border:1px solid var(--rule-2);border-radius:14px;transition:border-color .3s,transform .3s}
+.fn:hover{transform:translateY(-2px)}
+.fn.to{border-color:var(--ink-mute);background:var(--bg-2);border-width:1.5px}
+.fn-label{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:10px}
+.fn.to .fn-label{color:var(--ink-mute)}
+.fn-title{font-family:'Instrument Serif',serif;font-size:clamp(21px,2.4vw,30px);font-weight:400;line-height:1.05;color:var(--ink);letter-spacing:-.02em;margin-bottom:8px}
+.fn.to .fn-title{font-style:italic;color:var(--ink)}
+.fn-sub{font-size:12.5px;line-height:1.5;color:var(--ink-mute)}
+.fn.to .fn-sub{color:var(--ink-mute)}
+.flow-arr{display:flex;flex-direction:column;align-items:center;gap:8px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim)}
+.arr-line{width:54px;height:1px;background:var(--ink-dim);position:relative}
+.arr-line::after{content:"";position:absolute;right:-1px;top:50%;transform:translateY(-50%);border-left:6px solid var(--ink-dim);border-top:4px solid transparent;border-bottom:4px solid transparent}
+
+/* ARCH */
+.arch{display:flex;flex-direction:column;gap:7px}
+.al{display:grid;grid-template-columns:54px 1fr auto;gap:20px;padding:20px 22px;background:var(--bg-2);border:1px solid var(--rule-2);border-radius:12px;align-items:center;transition:all .3s cubic-bezier(.2,.8,.2,1);cursor:none}
+.al:hover{border-color:rgba(17,17,16,.25);background:var(--bg-3);transform:translateX(4px)}
+.al.base{background:var(--bg-2);border-color:var(--ink);border-width:2px}
+.al.base:hover{transform:translateX(4px);background:var(--bg-3)}
+.an{font-family:'Instrument Serif',serif;font-style:italic;font-size:40px;color:var(--ink-dim);line-height:1;letter-spacing:-.03em}
+.al.base .an{color:var(--ink)}
+.aname{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(19px,2.1vw,25px);color:var(--ink);letter-spacing:-.018em;line-height:1;margin-bottom:3px}
+.al.base .aname{color:var(--ink)}
+.aq{font-size:12.5px;color:var(--ink-mute);line-height:1.5}
+.al.base .aq{color:var(--ink-mute)}
+.arole{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);text-align:right;white-space:nowrap}
+.al.base .arole{color:var(--hi)}
+
+/* TRIPTYCH */
+.tri{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+@media(max-width:720px){.tri{grid-template-columns:1fr}}
+.test{padding:22px;background:var(--bg-2);border:1px solid var(--rule-2);border-radius:12px;transition:all .3s ease;cursor:none}
+.test:hover{background:var(--bg-3);border-color:var(--rule-2);transform:translateY(-3px)}
+.test:nth-child(2){background:var(--bg-3);border-color:var(--ink-mute)}
+.test:nth-child(2):hover{transform:translateY(-3px)}
+.tn{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:16px}
+.test:nth-child(2) .tn{color:var(--hi)}
+.tname{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(22px,2.3vw,30px);color:var(--ink);letter-spacing:-.02em;line-height:1;margin-bottom:14px}
+.test:nth-child(2) .tname{color:var(--ink);font-style:italic}
+.tq{font-size:12.5px;line-height:1.55;color:var(--ink-mute);padding-top:12px;border-top:1px dashed var(--rule-2)}
+.test:nth-child(2) .tq{color:var(--ink-mute);border-top-color:var(--rule-2)}
+
+/* AUDIT */
+.audit{display:flex;flex-direction:column}
+.ai{display:grid;grid-template-columns:44px 1fr 22px;gap:16px;padding:18px 0;border-top:1px solid var(--rule);align-items:center;transition:padding .3s,background .3s;border-radius:8px;cursor:none}
+.ai:last-child{border-bottom:1px solid var(--rule)}
+.ai:hover{background:var(--bg-2);padding-left:10px;padding-right:10px}
+.ai-n{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.ai-q{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(16px,1.8vw,22px);line-height:1.25;color:var(--ink);letter-spacing:-.012em}
+.ai-q em{font-style:italic;color:var(--hi)}
+.ai-box{width:18px;height:18px;border:1px solid var(--rule-2);border-radius:4px;transition:all .25s}
+.ai:hover .ai-box{border-color:var(--ink);background:var(--ink)}
+
+/* PROMISES */
+.prom{display:grid;grid-template-columns:auto 1fr;gap:0 24px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.pr{display:contents}
+.pl,.pq{padding:18px 0;border-bottom:1px dashed var(--rule-2)}
+.pr:last-child .pl,.pr:last-child .pq{border-bottom:none}
+.pl{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(18px,2vw,24px);font-weight:400;color:var(--hi);letter-spacing:-.012em;line-height:1;min-width:200px;white-space:nowrap}
+.pq{font-size:13.5px;color:var(--ink-mute);line-height:1.5;display:flex;align-items:center}
+@media(max-width:620px){.prom{grid-template-columns:1fr}.pl{padding-bottom:4px;border-bottom:none;white-space:normal}.pq{padding-top:4px}}
+
+/* PULL QUOTE */
+.pull{padding:120px 52px 120px;max-width:1160px;margin:0 auto;border-top:1px solid var(--rule-2)}
+.pull-eye{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:36px;display:flex;align-items:center;gap:14px}
+.pull-eye::before{content:"";width:44px;height:1px;background:var(--ink-dim)}
+.pull-text{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(36px,6.5vw,100px);line-height:.95;letter-spacing:-.03em;color:var(--ink)}
+.pull-text em{font-style:italic;color:var(--hi)}
+.sw{display:inline-block;opacity:.15;transform:translateY(10px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.8,.2,1)}
+.sw.lit{opacity:1;transform:translateY(0)}
+@media(max-width:700px){.pull{padding:80px 22px}}
+
+/* CHAPTER FOOTER */
+.ch-foot{padding:80px 52px 100px;background:var(--bg-2);border-top:2px solid var(--rule-2)}
+.ch-foot-inner{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.plink{padding:26px;border:1px solid var(--rule-2);border-radius:18px;background:var(--bg);display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s,background .3s;cursor:none}
+.plink:hover{transform:translateY(-3px);border-color:var(--rule-2);background:var(--bg-2)}
+.plink.r{text-align:right;align-items:flex-end}
+.pl-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute)}
+.pl-title{font-family:'Instrument Serif',serif;font-size:clamp(24px,2.8vw,36px);line-height:1;letter-spacing:-.025em;color:var(--ink)}
+.pl-title em{font-style:italic;color:var(--hi)}
+.pl-sub{font-size:12.5px;color:var(--ink-mute)}
+@media(max-width:640px){.ch-foot{padding:52px 22px 80px}.ch-foot-inner{grid-template-columns:1fr}}
+
+/* CLOSING */
+.closing{padding:140px 52px;background:var(--bg-1);border-top:2px solid var(--rule-2)}
+.cl-inner{max-width:1160px;margin:0 auto}
+.cl-eye{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:44px;display:flex;align-items:center;gap:14px}
+.cl-eye::before{content:"";width:44px;height:1px;background:var(--ink-dim)}
+.cl-h{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(32px,5.5vw,80px);line-height:1.02;letter-spacing:-.03em;color:var(--ink);margin-bottom:60px}
+.cl-h em{font-style:italic;color:var(--hi)}
+.cl-card{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;padding:26px 30px;background:var(--bg-1);border:1px solid var(--rule-2);border-radius:18px}
+@media(max-width:640px){.closing{padding:90px 22px}.cl-card{grid-template-columns:1fr;gap:16px}}
+
+
+/* ── INFOGRAPHIC COMPONENTS ─────────────────────────── */
+
+/* Moats comparison */
+.moat-table{width:100%;border-collapse:collapse}
+.moat-table th{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mute);padding:0 0 16px;font-weight:400;text-align:left}
+.moat-table th.col-after{color:var(--hi)}
+.moat-table td{padding:18px 20px;vertical-align:top;border-top:1px solid var(--rule);width:44%}
+.moat-table td.col-icon{width:12%;text-align:center;vertical-align:middle;padding:18px 8px}
+.moat-table td.col-icon svg{width:20px;height:20px;color:var(--ink-dim)}
+.moat-before .moat-name{font-family:'Instrument Serif',serif;font-size:16px;color:var(--ink);line-height:1.15}
+.moat-before .moat-desc{font-size:12.5px;color:var(--ink-mute);margin-top:4px;line-height:1.4}
+.moat-after .moat-name{font-family:'Instrument Serif',serif;font-size:16px;color:var(--ink);font-style:italic;line-height:1.15}
+.moat-after .moat-desc{font-size:12.5px;color:var(--ink-mute);margin-top:4px;line-height:1.4}
+
+/* Architecture layers */
+.arch-stack{display:flex;flex-direction:column;gap:3px}
+.arch-row{display:grid;grid-template-columns:72px 1fr 52px;align-items:stretch;background:var(--bg);border:1px solid var(--rule-2);border-radius:12px;overflow:hidden;transition:transform .25s,border-color .25s}
+.arch-row:hover{transform:translateX(4px);border-color:rgba(17,17,16,.2)}
+.arch-icon-col{display:flex;align-items:center;justify-content:center;padding:28px 0;background:var(--bg-2);flex-shrink:0}
+.arch-icon-col svg{width:24px;height:24px;color:var(--ink-mute)}
+.arch-content{padding:28px 24px}
+.arch-num-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:8px}
+.arch-layer-name{font-family:'Instrument Serif',serif;font-size:clamp(22px,2.6vw,30px);color:var(--ink);line-height:1;letter-spacing:-.02em;margin-bottom:8px}
+.arch-layer-desc{font-size:13.5px;color:var(--ink-mute);line-height:1.55}
+.arch-role-col{display:flex;align-items:center;justify-content:center;padding:28px 0;background:var(--bg-1);border-left:1px solid var(--rule)}
+.arch-role-tag{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);writing-mode:vertical-rl;transform:rotate(180deg)}
+.arch-row.arch-foundation{border-color:var(--rule-2);border-width:1px}
+.arch-row.arch-foundation .arch-layer-name{font-style:italic}
+.arch-row.arch-foundation .arch-role-tag{color:var(--hi)}
+.arch-row.arch-foundation .arch-icon-col{background:var(--bg-3)}
+.arch-row.arch-foundation .arch-icon-col svg{color:var(--hi)}
+.arch-row.arch-foundation .arch-role-col{background:var(--bg-2)}
+
+/* Three tests */
+.tests-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--rule-2);border:1px solid var(--rule-2);border-radius:14px;overflow:hidden}
+@media(max-width:680px){.tests-grid{grid-template-columns:1fr}}
+.test-card{background:var(--bg);padding:36px 28px;display:flex;flex-direction:column;gap:18px}
+.test-card:nth-child(2){background:var(--bg-2)}
+.test-icon{width:44px;height:44px;border-radius:10px;background:var(--bg-2);display:flex;align-items:center;justify-content:center}
+.test-icon svg{width:24px;height:24px;color:var(--ink-mute)}
+.test-card:nth-child(2) .test-icon svg{color:var(--hi)}
+.test-num{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+.test-card:nth-child(2) .test-num{color:var(--hi)}
+.test-heading{font-family:'Instrument Serif',serif;font-size:clamp(20px,2.4vw,28px);color:var(--ink);line-height:1;letter-spacing:-.015em}
+.test-q{font-size:13.5px;color:var(--ink-mute);line-height:1.55;padding-top:14px;border-top:1px solid var(--rule)}
+
+/* Audit cards */
+.audit-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--rule-2);border:1px solid var(--rule-2);border-radius:16px;overflow:hidden}
+@media(max-width:540px){.audit-grid{grid-template-columns:1fr}}
+.audit-card{padding:32px 28px;background:var(--bg);display:flex;flex-direction:column;gap:16px;position:relative;transition:background .2s}
+.audit-card:hover{background:var(--bg-2)}
+.audit-card:last-child{background:var(--bg-1)}
+.audit-card:last-child:hover{background:var(--bg-2)}
+.audit-card-head{display:flex;align-items:flex-start;justify-content:space-between}
+.audit-card-icon{width:36px;height:36px;border-radius:8px;background:var(--bg-2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.audit-card-icon svg{width:18px;height:18px;color:var(--ink-dim)}
+.audit-card:last-child .audit-card-icon{background:var(--bg-3)}
+.audit-card:last-child .audit-card-icon svg{color:var(--hi)}
+.audit-card-n{font-family:'Instrument Serif',serif;font-style:italic;font-size:52px;line-height:1;letter-spacing:-.04em;color:var(--ink-dim)}
+.audit-card:last-child .audit-card-n{color:var(--ink)}
+.audit-card-q{font-family:'Instrument Serif',serif;font-size:clamp(16px,2vw,22px);color:var(--ink);line-height:1.25;font-style:italic;letter-spacing:-.01em}
+
+/* Difference dimensions (Fig 07) */
+.promise-list{display:flex;flex-direction:column;gap:0}
+.promise-item{display:grid;grid-template-columns:64px 1fr;gap:0;align-items:start;padding:28px 0;border-bottom:1px solid var(--rule)}
+.promise-item:last-child{border-bottom:none}
+@media(max-width:540px){.promise-item{grid-template-columns:52px 1fr}}
+.promise-icon{display:flex;align-items:flex-start;justify-content:center;padding-top:4px}
+.promise-icon svg{width:22px;height:22px;color:var(--ink-dim)}
+.promise-body{}
+.promise-name{font-family:'Instrument Serif',serif;font-size:clamp(19px,2.2vw,26px);color:var(--ink);font-style:italic;line-height:1.1;letter-spacing:-.015em;margin-bottom:6px}
+.promise-q{font-size:14px;color:var(--ink-mute);line-height:1.55}
+
+/* Flow (Fig 03) */
+.flow-clean{display:grid;grid-template-columns:1fr 80px 1fr;gap:0;align-items:stretch}
+@media(max-width:560px){.flow-clean{grid-template-columns:1fr;}.flow-mid{transform:rotate(90deg);padding:16px 0;justify-content:center}}
+.flow-node{padding:28px 24px;border:1px solid var(--rule-2);border-radius:14px;background:var(--bg)}
+.flow-node-icon{width:40px;height:40px;border-radius:50%;background:var(--bg-2);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.flow-node-icon svg{width:20px;height:20px;color:var(--ink-mute)}
+.flow-node-era{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:8px}
+.flow-node-title{font-family:'Instrument Serif',serif;font-size:clamp(20px,2.4vw,28px);color:var(--ink);line-height:1;letter-spacing:-.015em;margin-bottom:10px}
+.flow-node-desc{font-size:13px;color:var(--ink-mute);line-height:1.5}
+.flow-node.dest{background:var(--bg-1);border-color:var(--ink-mute)}
+.flow-node.dest .flow-node-title{font-style:italic}
+.flow-node.dest .flow-node-icon{background:var(--bg-3)}
+.flow-node.dest .flow-node-icon svg{color:var(--ink)}
+.flow-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:0 8px}
+.flow-mid-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);white-space:nowrap}
+.flow-mid-arrow{display:flex;flex-direction:column;align-items:center;gap:3px}
+.flow-mid-line{width:1px;flex:1;min-height:40px;background:var(--rule-2)}
+.flow-mid-tip{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--ink-dim)}
+
+
+/* ── MDS FRAMEWORK (Kantar section) ──────────────────────── */
+.mds-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
+@media(max-width:580px){.mds-grid{grid-template-columns:1fr}}
+.mds-card{padding:30px 24px;border:1px solid var(--rule-2);border-radius:14px;background:var(--bg);display:flex;flex-direction:column;gap:12px}
+.mds-icon{width:36px;height:36px;border-radius:8px;background:var(--bg-2);display:flex;align-items:center;justify-content:center}
+.mds-icon svg{width:18px;height:18px;color:var(--ink-mute)}
+.mds-card.mds-d .mds-icon svg{color:var(--hi)}
+.mds-card.mds-d{border-color:var(--rule-2)}
+.mds-letter{font-family:'Instrument Serif',serif;font-style:italic;font-size:68px;line-height:1;letter-spacing:-.04em;color:var(--ink-dim);margin-top:4px}
+.mds-card.mds-d .mds-letter{color:var(--ink)}
+.mds-word{font-family:'Instrument Serif',serif;font-size:22px;color:var(--ink);line-height:1;letter-spacing:-.015em}
+.mds-card.mds-d .mds-word{font-style:italic}
+.mds-def{font-size:13px;color:var(--ink-mute);line-height:1.5}
+.mds-finding{display:grid;grid-template-columns:100px 1fr;gap:20px;align-items:center;padding:24px;background:var(--bg-2);border-radius:12px;margin-top:6px}
+@media(max-width:480px){.mds-finding{grid-template-columns:1fr}}
+.mds-finding-stat{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(44px,6vw,64px);line-height:1;letter-spacing:-.04em;color:var(--ink);text-align:center}
+.mds-finding-text{font-size:14px;color:var(--ink-mute);line-height:1.55}
+.mds-finding-text strong{color:var(--ink);font-weight:500}
+
+/* ── QUADRANT CARDS (Fig 01) ─────────────────────────────── */
+.quad-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule-2)}
+.quad-card{padding:28px 24px;background:var(--bg);display:flex;flex-direction:column;gap:10px;position:relative}
+.quad-card.quad-q1{background:var(--bg-1)}
+.quad-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.quad-icon{width:36px;height:36px;border-radius:8px;background:var(--bg-2);display:flex;align-items:center;justify-content:center}
+.quad-icon svg{width:18px;height:18px;color:var(--ink-mute)}
+.quad-card.quad-q1 .quad-icon{background:var(--bg-3)}
+.quad-card.quad-q1 .quad-icon svg{color:var(--ink)}
+.quad-roman{font-family:'Instrument Serif',serif;font-style:italic;font-size:48px;line-height:1;letter-spacing:-.04em;color:var(--ink-dim)}
+.quad-card.quad-q1 .quad-roman{color:var(--ink)}
+.quad-name{font-family:'Instrument Serif',serif;font-size:clamp(17px,2vw,22px);color:var(--ink);line-height:1.1;letter-spacing:-.01em}
+.quad-card.quad-q1 .quad-name{font-style:italic}
+.quad-desc{font-size:13px;color:var(--ink-mute);line-height:1.5}
+.quad-axis-note{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);margin-top:6px}
+.quad-card.quad-q1 .quad-axis-note{color:var(--hi)}
+.quad-destination{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--hi);margin-top:2px}
+.quad-axes{display:flex;justify-content:space-between;padding:14px 24px;border-top:1px solid var(--rule);background:var(--bg-1)}
+.quad-axis-y,.quad-axis-x{display:flex;align-items:center;gap:12px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim)}
+.quad-axis-label{color:var(--ink-mute)}
+@media(max-width:560px){.quad-grid{grid-template-columns:1fr}}
+
+/* ── CLUSTER CARDS (Fig 01b) ──────────────────────────────── */
+.cluster-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px}
+@media(max-width:700px){.cluster-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:400px){.cluster-grid{grid-template-columns:1fr}}
+.cluster-card{padding:20px;border:1px solid var(--rule-2);border-radius:14px;background:var(--bg);display:flex;flex-direction:column;gap:8px}
+.cluster-card.cluster-q1{border-color:var(--ink-mute);background:var(--bg-1)}
+.cluster-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.cluster-icon{width:32px;height:32px;border-radius:8px;background:var(--bg-2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cluster-icon svg{width:16px;height:16px;color:var(--ink-mute)}
+.cluster-card.cluster-q1 .cluster-icon{background:var(--bg-3)}
+.cluster-card.cluster-q1 .cluster-icon svg{color:var(--ink)}
+.cluster-q-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim)}
+.cluster-card.cluster-q1 .cluster-q-label{color:var(--hi)}
+.cluster-pct{font-family:'Instrument Serif',serif;font-size:clamp(36px,5vw,52px);line-height:1;letter-spacing:-.03em;color:var(--ink);font-style:italic}
+.cluster-card.cluster-q1 .cluster-pct{color:var(--ink)}
+.cluster-n{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);margin-top:-4px}
+.cluster-name{font-family:'Instrument Serif',serif;font-size:clamp(14px,1.6vw,17px);color:var(--ink);line-height:1.2;letter-spacing:-.01em}
+.cluster-card.cluster-q1 .cluster-name{font-style:italic}
+.cluster-desc{font-size:12px;color:var(--ink-mute);line-height:1.45}
+
+
+
+/* ── DISTRIBUTION MAP ──────────────────────────────────── */
+.map-wrap{display:grid;grid-template-columns:28px 1fr;gap:0;padding:36px 36px 0}
+@media(max-width:580px){.map-wrap{padding:24px 20px 0;grid-template-columns:1fr}}
+.map-y-label{display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:0 10px 44px 0}
+@media(max-width:580px){.map-y-label{display:none}}
+.map-axis-name{font-family:'Geist Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);text-align:center;line-height:1.4}
+.map-y-label .map-axis-name{writing-mode:vertical-rl;transform:rotate(180deg)}
+.map-axis-hi,.map-axis-lo{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:.08em;color:var(--ink-dim);text-transform:uppercase}
+.map-inner{display:flex;flex-direction:column;gap:0}
+.map-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--rule-2);border:1px solid var(--rule-2);border-radius:4px;overflow:hidden}
+.map-quad{display:flex;flex-direction:column;background:var(--bg)}
+.mq-tv{background:#f5f3f0}
+.mq-re{background:#efecea}
+.mq-drift{background:#faf9f7}
+.mq-comp{background:#eae7e2}
+.mq-dot-area{height:180px;padding:16px;position:relative;overflow:hidden}
+.mq-dot-area svg{width:100%;height:100%;display:block}
+.mq-label-area{padding:14px 18px 18px;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:3px}
+.mq-label-dest{border-top:2px solid var(--ink)}
+.mq-dest-tag{font-family:'Geist Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hi);margin-bottom:3px}
+.mq-pct{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(32px,4.5vw,48px);line-height:1;letter-spacing:-.03em;color:var(--ink-mute)}
+.mq-pct-dest{color:var(--ink) !important}
+.mq-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(13px,1.5vw,15px);font-weight:600;color:var(--ink);line-height:1.25;letter-spacing:-.01em}
+.mq-name-dest{color:var(--ink) !important}
+.mq-n{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);margin-top:2px}
+.map-x-label{display:flex;align-items:center;justify-content:space-between;padding:10px 0 28px}
+.map-x-label .map-axis-name{writing-mode:horizontal-tb;transform:none}
+
+/* ── IMPOSSIBLE BRIEF ICONS ─────────────────────────────── */
+.brief-icons{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin:32px 0 36px;background:var(--rule-2);border:1px solid var(--rule-2);border-radius:16px;overflow:hidden}
+@media(max-width:520px){.brief-icons{grid-template-columns:1fr 1fr}}
+.brief-icon-item{background:var(--bg);padding:28px 20px;display:flex;flex-direction:column;align-items:flex-start;gap:16px;transition:background .2s}
+.brief-icon-item:hover{background:var(--bg-2)}
+.brief-icon-wrap{width:44px;height:44px;border-radius:10px;background:var(--bg-2);display:flex;align-items:center;justify-content:center}
+.brief-icon-wrap svg{width:22px;height:22px;color:var(--ink-mute)}
+.brief-icon-label{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(18px,2.2vw,24px);color:var(--ink);letter-spacing:-.015em;line-height:1}
+
+/* ── MOAT ROW ICON ───────────────────────────────────────── */
+.moat-icon{margin-bottom:10px}
+.moat-icon svg{width:20px;height:20px;color:var(--ink-dim)}
+
+
+/* ── OPENER MOTIF ─────────────────────────────────────────── */
+.opener-motif{margin-top:20px;color:var(--ink)}
+@media(max-width:800px){.opener-motif{display:none}}
+
+/* ── LAYER ICON STRIP (S04) ──────────────────────────────── */
+.layer-icons{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin:28px 0 36px;background:var(--rule-2);border:1px solid var(--rule-2);border-radius:16px;overflow:hidden}
+@media(max-width:520px){.layer-icons{grid-template-columns:1fr 1fr}}
+.layer-icon-item{background:var(--bg);padding:24px 16px;display:flex;flex-direction:column;gap:12px;transition:background .2s}
+.layer-icon-item:hover{background:var(--bg-2)}
+.layer-icon-wrap{width:40px;height:40px;border-radius:10px;background:var(--bg-2);display:flex;align-items:center;justify-content:center}
+.layer-icon-wrap svg{width:20px;height:20px;color:var(--ink-mute)}
+.layer-icon-name{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(15px,1.8vw,19px);color:var(--ink);line-height:1;letter-spacing:-.01em}
+.layer-icon-role{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+.layer-icon-item.layer-icon-foundation .layer-icon-wrap{background:var(--bg-3)}
+.layer-icon-item.layer-icon-foundation .layer-icon-wrap svg{color:var(--hi)}
+.layer-icon-item.layer-icon-foundation .layer-icon-role{color:var(--hi)}
+
+/* ── CONTRAST PAIR (S07) ─────────────────────────────────── */
+.contrast-pair{display:grid;grid-template-columns:1fr 44px 1fr;gap:0;align-items:stretch;margin:28px 0 36px;background:var(--rule-2);border:1px solid var(--rule-2);border-radius:16px;overflow:hidden}
+@media(max-width:520px){.contrast-pair{grid-template-columns:1fr}.contrast-divider{transform:rotate(90deg);padding:12px 0;justify-content:center}}
+.contrast-item{padding:28px 22px;background:var(--bg);display:flex;flex-direction:column;gap:12px}
+.contrast-item.contrast-good{background:var(--bg-1)}
+.contrast-icon{width:40px;height:40px;border-radius:10px;background:var(--bg-2);display:flex;align-items:center;justify-content:center}
+.contrast-icon svg{width:20px;height:20px;color:var(--ink-mute)}
+.contrast-item.contrast-good .contrast-icon svg{color:var(--hi)}
+.contrast-label{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(18px,2.2vw,22px);color:var(--ink);line-height:1;letter-spacing:-.015em}
+.contrast-desc{font-size:13.5px;color:var(--ink-mute);line-height:1.5}
+.contrast-divider{display:flex;align-items:center;justify-content:center;background:var(--bg-2)}
+.contrast-divider svg{width:18px;height:18px;color:var(--ink-dim)}
+
+/* ── ECONOMY ICONS (S09) ─────────────────────────────────── */
+.economy-icons{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin:28px 0 36px;background:var(--rule-2);border:1px solid var(--rule-2);border-radius:16px;overflow:hidden}
+@media(max-width:520px){.economy-icons{grid-template-columns:1fr 1fr}}
+.econ-item{background:var(--bg);padding:22px 16px;display:flex;flex-direction:column;gap:12px;transition:background .2s}
+.econ-item:hover{background:var(--bg-2)}
+.econ-icon{width:40px;height:40px;border-radius:10px;background:var(--bg-2);display:flex;align-items:center;justify-content:center}
+.econ-icon svg{width:20px;height:20px;color:var(--ink-mute)}
+.econ-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute)}
+
+
+
+/* ── CONTACT PAGE ──────────────────────────────────────── */
+
+
+/* ── APPENDIX ─────────────────────────────────────────────── */
+.app-opener{background:var(--bg-1);border-bottom:1px solid var(--rule-2)}
+.app-opener-inner{padding:60px 52px 64px;max-width:900px}
+.app-opener-tag{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.app-opener-tag::before{content:'';width:28px;height:1px;background:var(--ink-dim)}
+.app-opener-title{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(42px,7vw,88px);line-height:.95;letter-spacing:-.03em;color:var(--ink);margin-bottom:28px}
+.app-opener-title em{font-style:italic;color:var(--hi)}
+.app-opener-sub{font-size:15px;line-height:1.65;color:var(--ink-mute);max-width:640px}
+.app-body{padding:52px 52px 80px;max-width:1360px;margin:0 auto}
+@media(max-width:700px){.app-opener-inner{padding:44px 24px 48px}.app-body{padding:36px 24px 60px}}
+
+.app-legend{display:flex;flex-wrap:wrap;gap:20px 40px;margin-bottom:40px;padding-bottom:28px;border-bottom:1px solid var(--rule)}
+.app-legend-item{display:flex;align-items:center;gap:8px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.app-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--ink-dim)}
+.app-legend-item.app-q1 .app-legend-dot{background:var(--ink)}
+.app-legend-item.app-q2 .app-legend-dot{background:#7a7770}
+.app-legend-item.app-q3 .app-legend-dot{background:#b0ada6}
+.app-legend-item.app-q4 .app-legend-dot{background:#c8c5be}
+
+.app-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--rule-2);border:1px solid var(--rule-2);border-radius:16px;overflow:hidden}
+@media(max-width:900px){.app-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:620px){.app-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:400px){.app-grid{grid-template-columns:1fr}}
+
+.app-company{padding:18px 16px;background:var(--bg);display:flex;flex-direction:column;gap:5px;transition:background .2s}
+.app-company:hover{background:var(--bg-2)}
+.app-co-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:500;color:var(--ink);line-height:1.2}
+.app-co-sector{font-size:11.5px;color:var(--ink-mute);line-height:1.3}
+.app-placeholder{padding:64px 48px;text-align:center;background:var(--bg);border:1px solid var(--rule-2);border-radius:16px;display:flex;flex-direction:column;align-items:center;gap:20px}
+.app-placeholder-icon{width:52px;height:52px;border-radius:12px;background:var(--bg-2);display:flex;align-items:center;justify-content:center}
+.app-placeholder-icon svg{width:26px;height:26px;color:var(--ink-mute)}
+.app-placeholder-title{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(22px,2.8vw,32px);color:var(--ink);letter-spacing:-.02em;line-height:1}
+.app-placeholder-sub{font-size:15px;line-height:1.65;color:var(--ink-mute);max-width:520px}
+.app-placeholder-cta{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);padding:12px 22px;border:1px solid var(--rule-2);border-radius:100px;transition:background .2s,color .2s}
+.app-placeholder-cta:hover{background:var(--ink);color:var(--bg)}
+
+/* CONTACT */
+.contact-section{padding:80px 52px;background:var(--bg-2);border-top:1px solid var(--rule-2)}
+.contact-inner{max-width:680px;margin:0 auto}
+.contact-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.contact-label::before{content:"";width:36px;height:1px;background:var(--ink-dim);flex-shrink:0}
+.contact-text{font-size:16px;line-height:1.65;color:var(--ink-mute);margin-bottom:36px}
+.contact-links{display:flex;gap:16px;flex-wrap:wrap}
+.contact-link{display:flex;align-items:center;gap:14px;padding:18px 22px;border:1px solid var(--rule-2);border-radius:14px;background:var(--bg);text-decoration:none;color:inherit;transition:border-color .25s,transform .25s;flex:1;min-width:240px}
+.contact-link:hover{border-color:var(--ink-mute);transform:translateY(-2px)}
+.contact-link-icon{width:40px;height:40px;border-radius:10px;background:var(--bg-2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.contact-link-icon svg{width:20px;height:20px;color:var(--ink-mute)}
+.contact-link:hover .contact-link-icon svg{color:var(--ink)}
+.contact-link-label{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:4px}
+.contact-link-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--ink);font-weight:500}
+@media(max-width:600px){.contact-section{padding:60px 24px}.contact-links{flex-direction:column}}
+
+.cover-finding{max-width:660px;font-size:clamp(16px,1.6vw,20px);line-height:1.4;color:var(--ink);opacity:0;animation:rise .9s cubic-bezier(.16,1,.3,1) 1.0s forwards;margin-top:20px;padding-top:20px;border-top:1px solid var(--rule)}
+.cover-finding strong{font-weight:600}
+
+
+/* ── CONTACT MASTHEAD ──────────────────────────────────── */
+.contact-masthead{background:var(--bg);display:grid;grid-template-rows:auto 1fr;min-height:52vh}
+.contact-masthead-inner{padding:64px 52px 72px;display:flex;flex-direction:column;justify-content:flex-end;gap:0;border-bottom:1px solid var(--rule);max-width:900px}
+@media(max-width:700px){.contact-masthead-inner{padding:48px 28px 56px}}
+.contact-masthead-name{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:16px}
+.contact-masthead-role{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--rule-2)}
+.contact-masthead-title{font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(56px,9vw,128px);line-height:.88;letter-spacing:-.03em;color:var(--ink);margin-bottom:32px}
+.contact-masthead-bio{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;line-height:1.65;color:var(--ink-mute);max-width:580px}
+
+/* ── CONTACT PAGE (formal) ─────────────────────────────── */
+.contact-page-body{padding:64px 52px 80px;max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:64px}
+@media(max-width:700px){.contact-page-body{padding:44px 24px 60px;gap:44px}}
+.contact-formal-section{display:flex;flex-direction:column;gap:28px}
+.contact-formal-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim);display:flex;align-items:center;gap:14px}
+.contact-formal-label::before{content:'';width:28px;height:1px;background:var(--ink-dim);flex-shrink:0}
+.contact-formal-grid{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.contact-formal-row{display:grid;grid-template-columns:140px 1fr;gap:20px;align-items:center;padding:16px 0;border-bottom:1px dashed var(--rule-2)}
+.contact-formal-row:last-child{border-bottom:none}
+@media(max-width:540px){.contact-formal-row{grid-template-columns:1fr;gap:4px;padding:14px 0}}
+.contact-formal-field{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim)}
+.contact-formal-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:500;color:var(--ink);text-decoration:none;transition:color .2s}
+.contact-formal-val:hover{color:var(--hi)}
+.contact-formal-plain{color:var(--ink-mute)}
+.contact-formal-cta{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim)}
+.contact-formal-field-link{text-decoration:none;color:var(--ink);transition:color .2s}
+.contact-formal-field-link:hover{color:var(--hi)}
+.contact-formal-row-link{text-decoration:none;color:inherit;transition:background .2s}
+.contact-formal-row-link:hover{background:var(--bg-1)}
+.contact-formal-row-link:hover .contact-formal-field{color:var(--hi)}
+.contact-formal-row-link:hover .contact-formal-val{color:var(--hi)}
+.contact-services{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.contact-services{grid-template-columns:1fr}}
+.contact-service{padding:24px;border:1px solid var(--rule-2);border-radius:14px;background:var(--bg);display:flex;flex-direction:column;gap:10px}
+.contact-service-num{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+.contact-service-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:600;color:var(--ink);line-height:1.2}
+.contact-service-desc{font-size:13.5px;color:var(--ink-mute);line-height:1.6}
+.further-reading-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.further-item{display:grid;grid-template-columns:52px 1fr 24px;gap:0;align-items:center;padding:22px 0;border-bottom:1px dashed var(--rule-2);text-decoration:none;color:inherit;transition:background .2s;border-radius:8px}
+.further-item:last-child{border-bottom:none}
+.further-item:hover{background:var(--bg-1);padding-left:10px;padding-right:10px}
+.further-item-icon{display:flex;align-items:center;justify-content:center}
+.further-item-icon svg{width:20px;height:20px;color:var(--ink-dim)}
+.further-item:hover .further-item-icon svg{color:var(--hi)}
+.further-item-body{padding:0 16px}
+.further-item-type,.further-item-source{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:4px}
+.further-item-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.2}
+.further-item-desc{font-size:13px;color:var(--ink-mute);line-height:1.5}
+.further-item-arrow{font-family:'Geist Mono',monospace;font-size:14px;color:var(--ink-dim);justify-self:end}
+.further-item:hover .further-item-arrow{color:var(--hi)}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .85s cubic-bezier(.2,.8,.2,1),transform .85s cubic-bezier(.2,.8,.2,1)}
+.rv.lit{opacity:1;transform:translateY(0)}
+
+/* ── COVER TITLE BLOCK ─────────────────────────────────── */
+@keyframes ci-ring{to{stroke-dashoffset:0}}
+@keyframes ci-node{from{opacity:0}to{opacity:1}}
+@keyframes ci-wire{to{stroke-dashoffset:0}}
+.cover-title-block{display:flex;align-items:center;gap:20px;margin-bottom:12px}
+.cover-icon-svg{width:44px;height:44px;flex-shrink:0}
+.cover-h1-hw{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(36px,5.5vw,72px);line-height:.9;letter-spacing:-.03em;color:var(--ink);margin:0;user-select:none}
+.cover-subhead{font-family:'Fraunces',serif;font-weight:300;font-style:italic;font-size:clamp(20px,3.5vw,44px);line-height:1;letter-spacing:-.025em;color:var(--ink);margin-bottom:40px}
+.cover-subhead em{font-style:normal;color:var(--hi)}
+</style>
+</head>
+<body>
+
+<div class="atm"></div>
+<div class="noise-layer"></div>
+<div id="cur-ring"></div>
+<div id="cur-dot"></div>
+<div id="prog-rail"><div id="prog-bar"></div></div>
+
+<!-- NAV -->
+<nav class="topnav">
+  <span class="brand">HDWR <span style="color:var(--ink-mute);font-size:10px">/001</span></span>
+  <a href="#cover" class="navlink on" onclick="goto('cover',this)"><span>Cover</span></a>
+  <a href="#ch1" class="navlink" onclick="goto('ch1',this)"><span class="nav-num">I</span><span>Finding</span></a>
+  <a href="#ch2" class="navlink" onclick="goto('ch2',this)"><span class="nav-num">II</span><span>Diagnosis</span></a>
+  <a href="#ch3" class="navlink" onclick="goto('ch3',this)"><span class="nav-num">III</span><span>System</span></a>
+  <a href="#appendix" class="navlink" onclick="goto('appendix',this)"><span>Companies</span></a>
+  <a href="#contact" class="navlink" onclick="goto('contact',this)"><span>Contact</span></a>
+</nav>
+
+<div class="sidemeta">
+  <span>Field Notes № 001</span><span class="dot">●</span><span>April 2026</span><span class="dot">●</span><span>By Ed Cotton</span>
+</div>
+
+<!-- ============================================================
+     COVER
+     ============================================================ -->
+<section id="cover" class="cover snap">
+  <div class="cover-top">
+    <span>Hardwired / Field Notes</span>
+    <span class="mid">№ 001 · Strategy · Brand · AI</span>
+    <span class="r">April 2026 · Brooklyn NY</span>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-kicker">An essay in three chapters by Ed Cotton</div>
+
+    <div class="cover-title-block">
+      <svg class="cover-icon-svg" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="22" r="19" stroke="#111110" stroke-width="1" stroke-dasharray="120" stroke-dashoffset="120" style="animation:ci-ring .9s cubic-bezier(.4,0,.2,1) .05s both"/>
+        <circle cx="22" cy="5"  r="2.5" fill="#111110" style="animation:ci-node .35s ease .1s both"/>
+        <circle cx="36" cy="29" r="2.5" fill="#111110" style="animation:ci-node .35s ease .25s both"/>
+        <circle cx="8"  cy="29" r="2.5" fill="#111110" style="animation:ci-node .35s ease .4s both"/>
+        <line x1="22" y1="5"  x2="36" y2="29" stroke="#111110" stroke-width="0.8" stroke-dasharray="32" stroke-dashoffset="32" style="animation:ci-wire .4s ease .6s both"/>
+        <line x1="36" y1="29" x2="8"  y2="29" stroke="#111110" stroke-width="0.8" stroke-dasharray="28" stroke-dashoffset="28" style="animation:ci-wire .4s ease .8s both"/>
+        <line x1="8"  y1="29" x2="22" y2="5"  stroke="#111110" stroke-width="0.8" stroke-dasharray="32" stroke-dashoffset="32" style="animation:ci-wire .4s ease 1s both"/>
+        <circle cx="22" cy="22" r="2"  fill="#111110" style="animation:ci-node .3s ease 1.2s both;opacity:0"/>
+        <line x1="22" y1="7"  x2="22" y2="20" stroke="#111110" stroke-width="0.5" stroke-dasharray="14" stroke-dashoffset="14" style="animation:ci-wire .3s ease 1.35s both"/>
+        <line x1="35" y1="28" x2="24" y2="23" stroke="#111110" stroke-width="0.5" stroke-dasharray="12" stroke-dashoffset="12" style="animation:ci-wire .3s ease 1.45s both"/>
+        <line x1="9"  y1="28" x2="20" y2="23" stroke="#111110" stroke-width="0.5" stroke-dasharray="12" stroke-dashoffset="12" style="animation:ci-wire .3s ease 1.55s both"/>
+      </svg>
+      <h1 class="cover-h1-hw">HARDWIRED</h1>
+    </div>
+    <div class="cover-subhead"><em>Encoding Brand Difference.</em></div>
+
+    <p class="cover-lede">
+      Inspired by Kantar's Meaningfully Different framework, Hardwired is a study of 52 public companies and what their preparedness for the next generation of AI reveals about <strong>difference, readiness, and the architecture</strong> that separates the compounding from the vulnerable.
+    </p>
+    <p class="cover-finding">
+      <strong>58% of companies studied sit in either Terminal Vulnerability or Drift: high downside exposure with insufficient readiness for the next wave of AI.</strong>
+    </p>
+  </div>
+
+  <div class="cover-stats">
+    <div class="stat-cell">
+      <span class="stat-label">Author</span>
+      <span class="stat-val">Ed <em>Cotton</em></span>
+      <span class="stat-sub"><a href="https://invernessconsult.com" target="_blank">invernessconsult.com →</a></span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">Study</span>
+      <span class="stat-val">52 <em>firms</em></span>
+      <span class="stat-sub">Public companies · 2026</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">Read</span>
+      <span class="stat-val">14 <em>min</em></span>
+      <span class="stat-sub">Three chapters</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">Issue</span>
+      <span class="stat-val">№ <em>001</em></span>
+      <span class="stat-sub">Brooklyn NY · Apr 2026</span>
+    </div>
+  </div>
+</section>
+
+<!-- TOC BENTO -->
+<div class="bento-section">
+  <div class="bento-header rv">
+    <div class="bento-tag">&gt; Contents</div>
+    <h2>Hardwired · <em>Encoding Brand Difference</em></h2>
+  </div>
+  <div class="grid">
+    <a href="#ch1" class="tile c-6 r-2 rv" data-mg onclick="goto('ch1')">
+      <div class="tile-head"><span class="tile-num">I</span><span class="tile-tag">Chapter One →</span></div>
+      <div>
+        <div class="tile-title">The <em>Finding.</em></div>
+        <p class="tile-desc">What fifty-two public companies revealed about preparedness for the next generation of AI. Why the strongest were not the loudest adopters.</p>
+      </div>
+      <span class="tile-cta">Open chapter →</span>
+    </a>
+    <a href="#ch2" class="tile c-6 r-2 rv" data-mg onclick="goto('ch2')">
+      <div class="tile-head"><span class="tile-num">II</span><span class="tile-tag">Chapter Two →</span></div>
+      <div>
+        <div class="tile-title">The <em>Diagnosis.</em></div>
+        <p class="tile-desc">Why the CMO has long been asked to manufacture distinctiveness without owning the systems that create it. And why cheap intelligence turns that into an urgent problem.</p>
+      </div>
+      <span class="tile-cta">Open chapter →</span>
+    </a>
+    <div class="tile c-3 rv">
+      <span class="tile-tag">Study size</span>
+      <div class="big-n"><em>52</em></div>
+      <p class="n-label">Public companies audited against four structural criteria.</p>
+    </div>
+    <div class="tile c-3 rv">
+      <span class="tile-tag">Compounding</span>
+      <div class="big-n">42<em>%</em></div>
+      <p class="n-label">Low downside exposure, high readiness. The destination.</p>
+    </div>
+    <div class="tile c-3 rv">
+      <span class="tile-tag">Terminal Vulnerability</span>
+      <div class="big-n">23<em>%</em></div>
+      <p class="n-label">High downside exposure, insufficient readiness for the wave ahead.</p>
+    </div>
+    <div class="tile c-3 rv">
+      <span class="tile-tag">Framework</span>
+      <div class="big-n">4 <em>layers</em></div>
+      <p class="n-label">Philosophy · Vision · Decisions · Infrastructure.</p>
+    </div>
+    <a href="#ch3" class="tile c-12 rv" data-mg onclick="goto('ch3')">
+      <div class="tile-head"><span class="tile-num">III</span><span class="tile-tag">Chapter Three →</span></div>
+      <div style="max-width:680px">
+        <div class="tile-title">The <em>System.</em></div>
+        <p class="tile-desc">What Hardwired is, how its four layers work, and what the CMO does on Monday morning: the architecture, the three tests, the six-question difference audit, and the promise worksheet.</p>
+      </div>
+      <span class="tile-cta" style="margin-top:14px">Open chapter →</span>
+    </a>
+    <div class="tile c-6 rv">
+      <span class="tile-tag">Thesis · Ch I</span>
+      <p class="quote-text">AI preparedness is <em>not</em> AI activity. It is <em>structural</em> readiness.</p>
+    </div>
+    <div class="tile c-6 rv">
+      <span class="tile-tag">Thesis · Ch III</span>
+      <p class="quote-text">Brand is not the paint on the machine. It is the part that tells the company <em>what must not be dissolved.</em></p>
+    </div>
+    <div class="tile c-12 rv">
+      <div class="author-row">
+        <div class="av">E</div>
+        <div>
+          <div class="av-name">Ed <em>Cotton</em></div>
+          <div class="av-role">Brand Consultant · Inverness Consulting · Brooklyn NY</div>
+        </div>
+        <a href="https://invernessconsult.com" target="_blank" class="av-cta">Visit Inverness →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CHAPTER I
+     ============================================================ -->
+<section id="ch1">
+<div class="opener snap" style="background:var(--bg)">
+  <div class="opener-top-bar">
+    <span>Chapter One of Three <span class="hi">/ 01</span></span>
+    <span>Hardwired № 001 · April 2026</span>
+  </div>
+  <div class="ch1-main">
+    <div class="ch1-left">
+      <div>
+        <div class="ch1-num-tag">Companies studied</div>
+        <div class="ch1-big-stat">52</div>
+        <div class="ch1-stat-label">Public companies · April 2026</div>
+      </div>
+      <div class="opener-motif">
+        <svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:200px;opacity:.15">
+          <circle cx="24" cy="70" r="3" fill="currentColor"/><circle cx="40" cy="62" r="3" fill="currentColor"/>
+          <circle cx="14" cy="56" r="3" fill="currentColor"/><circle cx="54" cy="72" r="3" fill="currentColor"/>
+          <circle cx="32" cy="46" r="3" fill="currentColor"/><circle cx="48" cy="52" r="3" fill="currentColor"/>
+          <circle cx="20" cy="36" r="3" fill="currentColor"/><circle cx="66" cy="58" r="3" fill="currentColor"/>
+          <circle cx="44" cy="34" r="3" fill="currentColor"/><circle cx="78" cy="48" r="3" fill="currentColor"/>
+          <circle cx="62" cy="26" r="3.5" fill="currentColor"/><circle cx="92" cy="38" r="3.5" fill="currentColor"/>
+          <circle cx="110" cy="22" r="4" fill="currentColor"/><circle cx="128" cy="14" r="4.5" fill="currentColor"/>
+          <circle cx="148" cy="18" r="4.5" fill="currentColor"/><circle cx="140" cy="30" r="4.5" fill="currentColor"/>
+          <circle cx="162" cy="10" r="4.5" fill="currentColor"/><circle cx="178" cy="22" r="4.5" fill="currentColor"/>
+          <circle cx="192" cy="12" r="4.5" fill="currentColor"/><circle cx="168" cy="32" r="4.5" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+    <div class="ch1-right">
+      <div class="ch1-the">The</div>
+      <div class="ch1-title"><em>Finding.</em></div>
+    </div>
+  </div>
+  <div class="opener-thesis-bar ch1-thesis-bar">
+    <div class="opener-thesis-label">Thesis</div>
+    <p class="opener-thesis-text">What fifty-two public companies revealed about preparedness for the next generation of AI. Why the strongest were not the <em>loudest AI adopters</em>, but the ones with low downside exposure and <em>genuine readiness</em>.</p>
+  </div>
+</div>
+
+<div class="prose">
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">00</span> The foundation: Meaningful Difference</div>
+    <p class="lede">Before this essay begins, it needs to acknowledge the work it builds on.</p>
+    <p>Kantar's <strong>BrandZ</strong> research, the world's largest and most comprehensive brand equity database, has spent decades identifying what separates the brands that grow from the brands that merely survive. The answer is not simply awareness, reach, spend or share of voice. It is being <strong>Meaningfully Different</strong>.</p>
+    <p>Kantar has identified three qualities that drive brand success across every category: being <strong>Meaningful</strong>, being <strong>Different</strong>, and being <strong>Salient</strong>. Marketers have long understood Salience: coming to mind quickly at the moment of choice: but the other two are less universally acted on, even though they are more fundamental.</p>
+    <p><strong>Meaningful</strong> brands meet people's functional needs in their category, but they also connect emotionally. <strong>Different</strong> brands stand apart from the alternatives. They lead rather than follow, they set trends rather than track them. When a brand achieves both, Salience follows, and so does pricing power.</p>
+    <p>The data behind this is striking. Brands with strong Meaningful Difference were <strong>twice as likely to remain in the BrandZ rankings twenty years later</strong>. They command pricing power that competitors cannot easily replicate. They weather disruption better because their value is rooted in something that cannot be copied or averaged away.</p>
+    <p>That is Meaningful Difference in action: an external measure, tracked in perception, valued in market, expressed at the moment of consumer choice.</p>
+  </article>
+
+  <div class="fig rv">
+    <div class="fig-top">
+      <div class="fig-label">Framework / Kantar BrandZ</div>
+      <div class="fig-title">The three qualities that drive brand success</div>
+    </div>
+    <div class="fig-body">
+      <div class="mds-grid">
+        <div class="mds-card mds-m">
+          <div class="mds-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="mds-letter">M</div>
+          <div class="mds-word">Meaningful</div>
+          <div class="mds-def">Meets functional needs and connects emotionally. People feel the brand is relevant to their lives.</div>
+        </div>
+        <div class="mds-card mds-d">
+          <div class="mds-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="mds-letter">D</div>
+          <div class="mds-word">Different</div>
+          <div class="mds-def">Stands apart from the alternatives. Leads trends and innovation rather than following them.</div>
+        </div>
+        <div class="mds-card mds-s">
+          <div class="mds-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div class="mds-letter">S</div>
+          <div class="mds-word">Salient</div>
+          <div class="mds-def">Comes to mind quickly at the moment of choice. The result of strong Meaning and Difference, amplified by communications.</div>
+        </div>
+      </div>
+      <div class="mds-finding">
+        <div class="mds-finding-stat">2×</div>
+        <div class="mds-finding-text">Brands with strong Meaningful Difference were twice as likely to remain in the BrandZ rankings twenty years later. Pricing power is the mechanism: meaningfully different brands justify their margins in ways that competitors cannot easily replicate.</div>
+      </div>
+    </div>
+    <div class="fig-cap">Source: Kantar BrandZ. Meaningful Difference (MDS) is the framework that underlies the world's most comprehensive brand equity database, and the consistent finding across every category studied.</div>
+  </div>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">00b</span> The internal question</div>
+    <p>BrandZ measures what the outside world sees and values. It is the output: the perception, the premium, the place in the ranking. It is the right thing to measure.</p>
+    <p>But it does not tell you <em>how</em>. It does not explain the internal architecture that produced those results, or the systems that allowed brands to adapt without losing what made them irreplaceable.</p>
+    <p><strong>That is the question this essay addresses.</strong> What creates Meaningful Difference from the inside? Where does it live within the organisation? What protects it when production gets cheaper, when comparison gets instant, when the customer asks a machine before they remember a brand?</p>
+    <p>Hardwired is not a replacement for Meaningful Difference. It is its internal counterpart: the infrastructure that makes external difference possible, durable and defensible. Building it is the job the Kantar data implies but does not describe. This essay attempts to describe it.</p>
+  </article>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">01</span> The question</div>
+    <p class="lede">This began as a simple question: why do some companies look genuinely <em>better prepared</em> for the next generation of AI than others?</p>
+    <p>Not better prepared in the cosmetic sense. Not more press releases or pilots or "AI-powered" language in the annual report. Prepared in the deeper sense: able to use the technology without becoming generic, able to defend what makes them valuable, and able to grow from a difference that still matters.</p>
+    <p>I looked at 52 public companies. The test was structural: Did the company understand its valuable difference? Was that difference still load-bearing under advanced LLM conditions? Had it built infrastructure to protect and evolve it?</p>
+    <p>The results did not show that AI companies win and old companies lose. They showed something more interesting. <strong>The Compounding companies: those best prepared: were often those with the lowest downside exposure: difference that AI augments rather than erases.</strong></p>
+  </article>
+
+  <!-- FIG 01 MATRIX -->
+  <div class="fig rv">
+    <div class="fig-top">
+      <div class="fig-label">Fig. 01 / Typology</div>
+      <div class="fig-title">Four types of company under <em>LLM pressure</em></div>
+    </div>
+    <div class="fig-body" style="padding:0">
+      <div class="quad-grid">
+
+        <div class="quad-card quad-q3">
+          <div class="quad-card-head">
+            <div class="quad-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 9h18" stroke="currentColor" stroke-width="1.5"/><path d="M9 21V9" stroke="currentColor" stroke-width="1.5"/></svg>
+            </div>
+            <div class="quad-roman">III</div>
+          </div>
+          <div class="quad-name">Drift</div>
+          <div class="quad-desc">Low downside exposure but inadequate preparedness. The moat is carrying the company: for now.</div>
+          <div class="quad-axis-note">Low downside · Low readiness</div>
+        </div>
+
+        <div class="quad-card quad-q1">
+          <div class="quad-card-head">
+            <div class="quad-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="quad-roman">I</div>
+          </div>
+          <div class="quad-name">Compounding</div>
+          <div class="quad-desc">Low downside exposure, high preparedness. The company is built to absorb the wave and grow from it.</div>
+          <div class="quad-axis-note">Low downside · High readiness</div>
+          <div class="quad-destination">The destination</div>
+        </div>
+
+        <div class="quad-card quad-q4">
+          <div class="quad-card-head">
+            <div class="quad-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="quad-roman">IV</div>
+          </div>
+          <div class="quad-name">Terminal Vulnerability</div>
+          <div class="quad-desc">High downside exposure, insufficient preparedness. Core revenue directly in the path of the wave.</div>
+          <div class="quad-axis-note">High downside · Low readiness</div>
+        </div>
+
+        <div class="quad-card quad-q2">
+          <div class="quad-card-head">
+            <div class="quad-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="17" r="0.5" stroke="currentColor" stroke-width="1.5"/></svg>
+            </div>
+            <div class="quad-roman">II</div>
+          </div>
+          <div class="quad-name">Re-Expression</div>
+          <div class="quad-desc">High downside exposure but strong readiness. The company sees the threat and is moving.</div>
+          <div class="quad-axis-note">High downside · High readiness</div>
+        </div>
+
+      </div>
+      <div class="quad-axes">
+        <div class="quad-axis-y">
+          <span>High</span>
+          <span class="quad-axis-label">Difference protected</span>
+          <span>Low</span>
+        </div>
+        <div class="quad-axis-x">
+          <span>Low</span>
+          <span class="quad-axis-label">Actively mobilised</span>
+          <span>High</span>
+        </div>
+      </div>
+    </div>
+    <div class="fig-cap">Plotted against two axes: whether the company's valuable difference is structurally protected, and whether that difference is actively mobilised. <strong>Quadrant I is the destination.</strong> Most companies sit elsewhere.</div>
+  </div>
+
+  <!-- FIG 01b DISTRIBUTION MAP -->
+  <div class="fig rv">
+    <div class="fig-top">
+      <div class="fig-label">Fig. 01b / Distribution</div>
+      <div class="fig-title">Where the <em>52 companies</em> actually sit</div>
+    </div>
+    <div class="fig-body" style="padding:0">
+
+      <!-- Axis labels above/beside the grid -->
+      <div class="map-wrap">
+
+        <!-- Y-axis label -->
+        <div class="map-y-label">
+          <span class="map-axis-hi">High</span>
+          <span class="map-axis-name">Downside<br>Exposure</span>
+          <span class="map-axis-lo">Low</span>
+        </div>
+
+        <div class="map-inner">
+          <!-- The 2×2 grid -->
+          <div class="map-grid">
+
+            <!-- Top-left: Terminal Vulnerability (High Downside, Low Readiness) -->
+            <div class="map-quad mq-tv">
+              <div class="mq-dot-area">
+                <svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+                  <circle cx="60" cy="30" r="4" fill="#aaa7a0"/><circle cx="180" cy="50" r="4" fill="#aaa7a0"/>
+                  <circle cx="100" cy="60" r="4" fill="#aaa7a0"/><circle cx="40" cy="80" r="4" fill="#aaa7a0"/>
+                  <circle cx="150" cy="20" r="4" fill="#aaa7a0"/><circle cx="80" cy="110" r="4" fill="#aaa7a0"/>
+                  <circle cx="200" cy="90" r="4" fill="#aaa7a0"/><circle cx="130" cy="100" r="4" fill="#aaa7a0"/>
+                  <circle cx="50" cy="50" r="4" fill="#aaa7a0"/><circle cx="170" cy="115" r="4" fill="#aaa7a0"/>
+                  <circle cx="110" cy="35" r="4" fill="#aaa7a0"/><circle cx="220" cy="60" r="4" fill="#aaa7a0"/>
+                </svg>
+              </div>
+              <div class="mq-label-area">
+                <div class="mq-pct">23%</div>
+                <div class="mq-name">Terminal<br>Vulnerability</div>
+                <div class="mq-n">n = 12</div>
+              </div>
+            </div>
+
+            <!-- Top-right: Re-Expression (High Downside, High Readiness) -->
+            <div class="map-quad mq-re">
+              <div class="mq-dot-area">
+                <svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+                  <circle cx="40" cy="40" r="4" fill="#7a7770"/><circle cx="160" cy="25" r="4" fill="#7a7770"/>
+                  <circle cx="90" cy="75" r="4" fill="#7a7770"/><circle cx="200" cy="55" r="4" fill="#7a7770"/>
+                  <circle cx="130" cy="30" r="4" fill="#7a7770"/><circle cx="60" cy="100" r="4" fill="#7a7770"/>
+                  <circle cx="190" cy="95" r="4" fill="#7a7770"/><circle cx="110" cy="115" r="4" fill="#7a7770"/>
+                  <circle cx="70" cy="55" r="4" fill="#7a7770"/><circle cx="215" cy="30" r="4" fill="#7a7770"/>
+                  <circle cx="145" cy="90" r="4" fill="#7a7770"/><circle cx="35" cy="120" r="4" fill="#7a7770"/>
+                  <circle cx="175" cy="115" r="4" fill="#7a7770"/><circle cx="100" cy="45" r="4" fill="#7a7770"/>
+                  <circle cx="50" cy="80" r="4" fill="#7a7770"/><circle cx="225" cy="75" r="4" fill="#7a7770"/>
+                </svg>
+              </div>
+              <div class="mq-label-area">
+                <div class="mq-pct">31%</div>
+                <div class="mq-name">Re-<br>Expression</div>
+                <div class="mq-n">n = 16</div>
+              </div>
+            </div>
+
+            <!-- Bottom-left: Drift (Low Downside, Low Readiness) -->
+            <div class="map-quad mq-drift">
+              <div class="mq-dot-area">
+                <svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+                  <circle cx="90" cy="60" r="4" fill="#c4c1ba"/>
+                  <circle cx="160" cy="90" r="4" fill="#c4c1ba"/>
+                </svg>
+              </div>
+              <div class="mq-label-area">
+                <div class="mq-pct">4%</div>
+                <div class="mq-name">Drift</div>
+                <div class="mq-n">n = 2</div>
+              </div>
+            </div>
+
+            <!-- Bottom-right: Compounding (Low Downside, High Readiness): destination -->
+            <div class="map-quad mq-comp">
+              <div class="mq-dot-area">
+                <svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+                  <circle cx="50" cy="35" r="5" fill="#111110"/><circle cx="140" cy="20" r="5" fill="#111110"/>
+                  <circle cx="90" cy="60" r="5" fill="#111110"/><circle cx="200" cy="40" r="5" fill="#111110"/>
+                  <circle cx="120" cy="90" r="5" fill="#111110"/><circle cx="55" cy="110" r="5" fill="#111110"/>
+                  <circle cx="175" cy="75" r="5" fill="#111110"/><circle cx="30" cy="75" r="5" fill="#111110"/>
+                  <circle cx="215" cy="110" r="5" fill="#111110"/><circle cx="100" cy="120" r="5" fill="#111110"/>
+                  <circle cx="160" cy="105" r="5" fill="#111110"/><circle cx="75" cy="45" r="5" fill="#111110"/>
+                  <circle cx="230" cy="55" r="5" fill="#111110"/><circle cx="40" cy="130" r="5" fill="#111110"/>
+                  <circle cx="185" cy="30" r="5" fill="#111110"/><circle cx="130" cy="50" r="5" fill="#111110"/>
+                  <circle cx="210" cy="85" r="5" fill="#111110"/><circle cx="65" cy="90" r="5" fill="#111110"/>
+                  <circle cx="150" cy="130" r="5" fill="#111110"/><circle cx="110" cy="25" r="5" fill="#111110"/>
+                  <circle cx="195" cy="120" r="5" fill="#111110"/><circle cx="85" cy="105" r="5" fill="#111110"/>
+                </svg>
+              </div>
+              <div class="mq-label-area mq-label-dest">
+                <div class="mq-dest-tag">The destination</div>
+                <div class="mq-pct mq-pct-dest">42%</div>
+                <div class="mq-name mq-name-dest">Compounding</div>
+                <div class="mq-n">n = 22</div>
+              </div>
+            </div>
+
+          </div><!-- end map-grid -->
+
+          <!-- X-axis label -->
+          <div class="map-x-label">
+            <span class="map-axis-lo">Low</span>
+            <span class="map-axis-name">Readiness</span>
+            <span class="map-axis-hi">High</span>
+          </div>
+        </div><!-- end map-inner -->
+      </div><!-- end map-wrap -->
+
+    </div>
+    <div class="fig-cap"><strong>Each dot represents one of the 52 companies studied.</strong> X-axis: readiness to respond to next-wave AI (preparedness + upside capture). Y-axis: downside exposure (how much core revenue sits in the path of the wave). 42% sit in the Compounding quadrant: low exposure, high readiness.</div>
+  </div>
+
+<div class="pull rv">
+  <div class="pull-eye">&gt; The Finding</div>
+  <p class="pull-text" id="pt">AI preparedness is <em>not</em> AI activity. It is <em>structural</em> readiness.</p>
+</div>
+
+<div class="ch-foot">
+  <div class="ch-foot-inner">
+    <a href="#cover" class="plink" data-mg onclick="goto('cover')"><span class="pl-label">← Cover</span><span class="pl-title">Contents &amp; <em>Cover</em></span><span class="pl-sub">Hardwired № 001</span></a>
+    <a href="#ch2" class="plink r" data-mg onclick="goto('ch2')"><span class="pl-label">Next →</span><span class="pl-title">II · The <em>Diagnosis</em></span><span class="pl-sub">Why the CMO's brief keeps breaking</span></a>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================
+     CHAPTER II
+     ============================================================ -->
+<section id="ch2">
+<div class="opener snap" style="background:var(--bg-1)">
+  <div class="opener-top-bar" style="background:var(--bg-1)">
+    <span>Chapter Two of Three <span class="hi">/ 02</span></span>
+    <span>Hardwired № 001 · April 2026</span>
+  </div>
+  <div class="ch2-main">
+    <div class="ch2-num-row">
+      <div class="ch2-roman">II</div>
+      <div class="ch2-num-tag">Chapter Two</div>
+    </div>
+    <div class="ch2-the">The</div>
+    <div class="ch2-title"><em>Diagnosis.</em></div>
+    <div class="ch2-rule"></div>
+  </div>
+  <div class="opener-thesis-bar ch2-thesis-bar">
+    <div class="opener-thesis-label">Thesis</div>
+    <p class="opener-thesis-text">Why the CMO has long been asked to manufacture <em>distinctiveness</em> without owning the systems that create it. And why cheap intelligence turns that old problem into an <em>urgent</em> one.</p>
+  </div>
+</div>
+
+<div class="prose">
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">02</span> The impossible brief</div>
+    <h2>Make us <em>famous</em>. Make us <em>trusted</em>. Make us <em>premium</em>.</h2>
+    <div class="brief-icons rv">
+      <div class="brief-icon-item">
+        <div class="brief-icon-wrap"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+        <div class="brief-icon-label">Famous</div>
+      </div>
+      <div class="brief-icon-item">
+        <div class="brief-icon-wrap"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v6c0 5 3.5 9.7 8 11 4.5-1.3 8-6 8-11V6L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="brief-icon-label">Trusted</div>
+      </div>
+      <div class="brief-icon-item">
+        <div class="brief-icon-wrap"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <div class="brief-icon-label">Premium</div>
+      </div>
+      <div class="brief-icon-item">
+        <div class="brief-icon-wrap"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3h12l3 5-9 13L3 8l3-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 8h18" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="brief-icon-label">Distinctive</div>
+      </div>
+    </div>
+    <p class="lede">CMOs have long been asked to perform a small miracle: make us famous, trusted, premium, distinctive. Shift perception. Create demand. Drive growth.</p>
+    <p>None of this goes away. Brand still has to be known to be chosen. But there has always been a catch. In many companies, the CMO is made responsible for distinctiveness while the real sources of distinctiveness sit somewhere else: product, service, pricing, supply chain, retail experience, data, operations, culture.</p>
+    <p>Brand became the wrapper. The serious work lived in other rooms. The one thing that joined all the silos, and made the company valuable, became nobody's full responsibility: <strong>difference</strong>. It was always a problem. Cheap intelligence is making it dangerous.</p>
+  </article>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">03</span> The hidden moats are weakening</div>
+    <p>For much of corporate history, brands were protected by frictions they barely noticed. Production was expensive, expertise was scarce, comparison was slow, distribution was controlled and customer memory mattered. LLMs weaken all of those protections.</p>
+  </article>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 02 / The Weakening Moats</div><div class="fig-title">Old protections, <em>new conditions</em></div></div>
+    <div class="fig-body">
+      <table class="moat-table">
+        <thead>
+          <tr>
+            <th>Before LLMs</th>
+            <th class="col-icon"></th>
+            <th class="col-after">After LLMs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="moat-before"><div class="moat-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 12v4M10 14h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="moat-name">Production cost</div><div class="moat-desc">Expensive to produce well. Scarcity protected value.</div></td>
+            <td class="col-icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="moat-after"><div class="moat-name">Output gets cheap</div><div class="moat-desc">Plausible drafts in seconds. Scarcity erodes.</div></td>
+          </tr>
+          <tr>
+            <td class="moat-before"><div class="moat-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg></div><div class="moat-name">Expertise scarcity</div><div class="moat-desc">Domain knowledge was slow and costly to replicate.</div></td>
+            <td class="col-icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="moat-after"><div class="moat-name">Expertise gets summoned</div><div class="moat-desc">Models compress domain knowledge on demand.</div></td>
+          </tr>
+          <tr>
+            <td class="moat-before"><div class="moat-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="moat-name">Comparison friction</div><div class="moat-desc">Evaluating alternatives took time. Inertia favoured incumbents.</div></td>
+            <td class="col-icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="moat-after"><div class="moat-name">Comparison gets instant</div><div class="moat-desc">Alternatives ranked and explained on request.</div></td>
+          </tr>
+          <tr>
+            <td class="moat-before"><div class="moat-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 22V12h6v10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="moat-name">Distribution control</div><div class="moat-desc">Shelves and media were gated. Reach was earned or bought.</div></td>
+            <td class="col-icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="moat-after"><div class="moat-name">Discovery gets mediated</div><div class="moat-desc">Agents now stand between brand and buyer.</div></td>
+          </tr>
+          <tr>
+            <td class="moat-before"><div class="moat-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="moat-name">Customer memory</div><div class="moat-desc">Brand recall at the moment of choice drove preference.</div></td>
+            <td class="col-icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+            <td class="moat-after"><div class="moat-name">Memory becomes recommendation</div><div class="moat-desc">The customer asks the machine before they remember the brand.</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="fig-cap"><strong>Not every brand is equally exposed.</strong> Coke, Hermès, Costco remain durable. But the conditions around every business change.</div>
+  </div>
+
+  <article class="sec rv">
+    <h2>From brand <em>memory</em> to machine <em>recommendation.</em></h2>
+    <p>For CMOs, the sharpest shift may not be cheaper copy or faster media planning. It is the move from brand memory to machine recommendation. For decades marketing has worked to make brands <strong>remembered by people</strong>. The new question is whether they will be <strong>recommended by machines</strong>.</p>
+    <p>The customer does not have to forget the brand for the economics to shift. They merely have to ask the machine first.</p>
+  </article>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 03 / The Shift</div><div class="fig-title">How <em>choice</em> gets made</div></div>
+    <div class="fig-body">
+      <div class="flow-clean">
+        <div class="flow-node">
+          <div class="flow-node-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <div class="flow-node-era">Yesterday</div>
+          <div class="flow-node-title">Brand Memory</div>
+          <div class="flow-node-desc">Built in people. Earned through fame, awareness, mental availability and consistent expression over time.</div>
+        </div>
+        <div class="flow-mid">
+          <div class="flow-mid-label">LLM era</div>
+          <div class="flow-mid-arrow">
+            <div class="flow-mid-line"></div>
+            <div class="flow-mid-tip"></div>
+          </div>
+        </div>
+        <div class="flow-node dest">
+          <div class="flow-node-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="10" r="2" stroke="currentColor" stroke-width="1.5"/></svg></div>
+          <div class="flow-node-era">Today</div>
+          <div class="flow-node-title">Machine Recommendation</div>
+          <div class="flow-node-desc">Built in systems. Earned through evidence, trusted sources, consistent behaviour and category authority.</div>
+        </div>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Memory still matters,</strong> but it now competes with an intermediary. The question is whether the brand is not only remembered, but recommended.</div>
+  </div>
+</div>
+
+<div class="ch-foot">
+  <div class="ch-foot-inner">
+    <a href="#ch1" class="plink" data-mg onclick="goto('ch1')"><span class="pl-label">← Previous</span><span class="pl-title">I · The <em>Finding</em></span><span class="pl-sub">Sixty public companies</span></a>
+    <a href="#ch3" class="plink r" data-mg onclick="goto('ch3')"><span class="pl-label">Next →</span><span class="pl-title">III · The <em>System</em></span><span class="pl-sub">What hardwiring actually is</span></a>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================
+     CHAPTER III
+     ============================================================ -->
+<section id="ch3">
+<div class="opener snap" style="background:var(--bg)">
+  <div class="opener-top-bar">
+    <span>Chapter Three of Three <span class="hi">/ 03</span></span>
+    <span>Hardwired № 001 · April 2026</span>
+  </div>
+  <div class="ch3-main">
+    <div class="ch3-roman-col">
+      <div class="ch3-roman">III</div>
+    </div>
+    <div class="ch3-right">
+      <div class="ch3-num-tag">Chapter Three</div>
+      <div style="height:1px;background:var(--rule-2);margin:12px 0 20px"></div>
+      <div class="ch3-the">The</div>
+      <div class="ch3-title-word"><em>System.</em></div>
+      <div class="opener-motif" style="margin-top:32px">
+        <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:280px;opacity:.14">
+          <rect x="0"   y="0"  width="280" height="14" rx="3" fill="currentColor"/>
+          <rect x="18"  y="20" width="244" height="14" rx="3" fill="currentColor"/>
+          <rect x="44"  y="40" width="192" height="14" rx="3" fill="currentColor"/>
+          <rect x="88"  y="60" width="104" height="14" rx="3" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="opener-thesis-bar ch3-thesis-bar">
+    <div class="opener-thesis-label">Thesis</div>
+    <p class="opener-thesis-text">What Hardwired is, how its <em>four layers</em> work, and what the CMO does on Monday morning to make the absence of hardwiring <em>visible</em> inside the company.</p>
+  </div>
+</div>
+
+<div class="prose">
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">04</span> What Hardwired measures</div>
+    <h2>Brand in its most serious form. Not expression. <em>Architecture.</em></h2>
+    <div class="layer-icons rv">
+      <div class="layer-icon-item">
+        <div class="layer-icon-wrap"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="11" width="18" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 11V8a5 5 0 0110 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <div class="layer-icon-name">Infrastructure</div>
+        <div class="layer-icon-role">protects</div>
+      </div>
+      <div class="layer-icon-item">
+        <div class="layer-icon-wrap"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3a9 9 0 100 18A9 9 0 0012 3z" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="layer-icon-name">Decisions</div>
+        <div class="layer-icon-role">enacts</div>
+      </div>
+      <div class="layer-icon-item">
+        <div class="layer-icon-wrap"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 14l6-6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="layer-icon-name">Vision</div>
+        <div class="layer-icon-role">directs</div>
+      </div>
+      <div class="layer-icon-item layer-icon-foundation">
+        <div class="layer-icon-wrap"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L3 7l9 5 9-5-9-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 12l9 5 9-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="layer-icon-name">Philosophy</div>
+        <div class="layer-icon-role">grounds</div>
+      </div>
+    </div>
+    <p class="lede">Hardwired is the system by which a company protects its valuable difference over time. It has <em>four connected layers</em>.</p>
+  </article>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 04 / Architecture</div><div class="fig-title">The four layers of <em>hardwiring</em></div></div>
+    <div class="fig-body" style="padding:0;overflow:hidden;border-radius:12px">
+      <svg width="100%" viewBox="0 0 680 430" role="img" xmlns="http://www.w3.org/2000/svg">
+        <title>The four layers of hardwiring</title>
+        <desc>Animated diagram showing brand difference encoded into four structural layers: Philosophy, Vision, Decisions, Infrastructure</desc>
+        <defs>
+          <marker id="harr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <style>
+            @keyframes htravel { 0%{stroke-dashoffset:280} 100%{stroke-dashoffset:0} }
+            @keyframes hfadein { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+            @keyframes hpulse  { 0%,100%{opacity:.18} 50%{opacity:.5} }
+            @keyframes hlock   { 0%{stroke-dashoffset:340;opacity:0} 15%{opacity:1} 100%{stroke-dashoffset:0;opacity:1} }
+            @keyframes hlabel  { from{opacity:0} to{opacity:1} }
+            .hs1{stroke-dasharray:280;animation:htravel 2s cubic-bezier(.4,0,.2,1) infinite}
+            .hs2{stroke-dasharray:280;animation:htravel 2s cubic-bezier(.4,0,.2,1) .18s infinite}
+            .hs3{stroke-dasharray:280;animation:htravel 2s cubic-bezier(.4,0,.2,1) .36s infinite}
+            .hs4{stroke-dasharray:280;animation:htravel 2s cubic-bezier(.4,0,.2,1) .54s infinite}
+            .hl1{animation:hfadein .5s ease .1s both}
+            .hl2{animation:hfadein .5s ease .3s both}
+            .hl3{animation:hfadein .5s ease .5s both}
+            .hl4{animation:hfadein .5s ease .7s both}
+            .hl5{animation:hfadein .5s ease .9s both}
+            .hdp1{animation:hpulse 1.8s ease-in-out infinite}
+            .hdp2{animation:hpulse 1.8s ease-in-out .3s infinite}
+            .hdp3{animation:hpulse 1.8s ease-in-out .6s infinite}
+            .hlock{stroke-dasharray:340;animation:hlock 2.8s ease 1s both}
+            .henctxt{animation:hlabel .4s ease 3.6s both}
+          </style>
+        </defs>
+
+        <!-- Source block -->
+        <g class="hl1">
+          <rect x="28" y="145" width="130" height="140" rx="4" fill="#f2f0ed" stroke="#d8d5cf" stroke-width="0.5"/>
+          <text x="93" y="198" font-family="'Plus Jakarta Sans',sans-serif" font-size="13" font-weight="600" fill="#111110" text-anchor="middle">Valuable</text>
+          <text x="93" y="216" font-family="'Plus Jakarta Sans',sans-serif" font-size="13" font-weight="600" fill="#111110" text-anchor="middle">difference</text>
+          <text x="93" y="248" font-family="'Geist Mono',monospace" font-size="9" fill="#a8a49e" text-anchor="middle" letter-spacing="0.06em">WHAT MAKES YOU</text>
+          <text x="93" y="263" font-family="'Geist Mono',monospace" font-size="9" fill="#a8a49e" text-anchor="middle" letter-spacing="0.06em">IRREPLACEABLE</text>
+        </g>
+
+        <!-- Pulsing dots -->
+        <circle cx="164" cy="185" r="3" fill="#111110" class="hdp1"/>
+        <circle cx="177" cy="185" r="3" fill="#111110" class="hdp2"/>
+        <circle cx="190" cy="185" r="3" fill="#111110" class="hdp3"/>
+        <circle cx="164" cy="245" r="3" fill="#111110" class="hdp1" style="animation-delay:.9s"/>
+        <circle cx="177" cy="245" r="3" fill="#111110" class="hdp2" style="animation-delay:1.2s"/>
+        <circle cx="190" cy="245" r="3" fill="#111110" class="hdp3" style="animation-delay:1.5s"/>
+
+        <!-- Signal paths -->
+        <path class="hs1" d="M200 192 Q230 192 238 57" fill="none" stroke="#111110" stroke-width="1" opacity="0.25" marker-end="url(#harr)"/>
+        <path class="hs2" d="M200 205 Q232 205 238 163" fill="none" stroke="#111110" stroke-width="1" opacity="0.25" marker-end="url(#harr)"/>
+        <path class="hs3" d="M200 225 Q232 225 238 270" fill="none" stroke="#111110" stroke-width="1" opacity="0.25" marker-end="url(#harr)"/>
+        <path class="hs4" d="M200 238 Q228 238 238 378" fill="none" stroke="#111110" stroke-width="1" opacity="0.25" marker-end="url(#harr)"/>
+
+        <!-- Layer 01: Philosophy -->
+        <g class="hl2">
+          <rect x="240" y="40" width="390" height="80" rx="4" fill="#eae7e2" stroke="#d8d5cf" stroke-width="0.5"/>
+          <rect x="240" y="40" width="5" height="80" rx="2" fill="#d4590a"/>
+          <text x="258" y="66" font-family="'Geist Mono',monospace" font-size="9" fill="#a8a49e" letter-spacing="0.12em">LAYER 01 · FOUNDATION</text>
+          <text x="258" y="88" font-family="'Plus Jakarta Sans',sans-serif" font-size="14" font-weight="600" fill="#111110" font-style="italic">Philosophy</text>
+          <text x="626" y="72" font-family="'Geist Mono',monospace" font-size="9" fill="#d4590a" text-anchor="end" letter-spacing="0.1em">GROUNDS</text>
+          <text x="258" y="108" font-family="'Geist Mono',monospace" font-size="9.5" fill="#a8a49e">What makes this company not a commodity</text>
+        </g>
+
+        <!-- Layer 02: Vision -->
+        <g class="hl3">
+          <rect x="240" y="145" width="390" height="80" rx="4" fill="#f2f0ed" stroke="#d8d5cf" stroke-width="0.5"/>
+          <rect x="240" y="145" width="5" height="80" rx="2" fill="#111110" opacity="0.65"/>
+          <text x="258" y="171" font-family="'Geist Mono',monospace" font-size="9" fill="#a8a49e" letter-spacing="0.12em">LAYER 02</text>
+          <text x="258" y="193" font-family="'Plus Jakarta Sans',sans-serif" font-size="14" font-weight="600" fill="#111110">Vision</text>
+          <text x="626" y="171" font-family="'Geist Mono',monospace" font-size="9" fill="#6b6860" text-anchor="end" letter-spacing="0.1em">DIRECTS</text>
+          <text x="258" y="213" font-family="'Geist Mono',monospace" font-size="9.5" fill="#a8a49e">How difference evolves as conditions change</text>
+        </g>
+
+        <!-- Layer 03: Decisions -->
+        <g class="hl4">
+          <rect x="240" y="250" width="390" height="80" rx="4" fill="#f2f0ed" stroke="#d8d5cf" stroke-width="0.5"/>
+          <rect x="240" y="250" width="5" height="80" rx="2" fill="#111110" opacity="0.4"/>
+          <text x="258" y="276" font-family="'Geist Mono',monospace" font-size="9" fill="#a8a49e" letter-spacing="0.12em">LAYER 03</text>
+          <text x="258" y="298" font-family="'Plus Jakarta Sans',sans-serif" font-size="14" font-weight="600" fill="#111110">Deliberate decisions</text>
+          <text x="626" y="276" font-family="'Geist Mono',monospace" font-size="9" fill="#a8a49e" text-anchor="end" letter-spacing="0.1em">ENACTS</text>
+          <text x="258" y="318" font-family="'Geist Mono',monospace" font-size="9.5" fill="#a8a49e">What to make, refuse, price and never automate</text>
+        </g>
+
+        <!-- Layer 04: Infrastructure -->
+        <g class="hl5">
+          <rect x="240" y="355" width="390" height="60" rx="4" fill="#f2f0ed" stroke="#d8d5cf" stroke-width="0.5"/>
+          <rect x="240" y="355" width="5" height="60" rx="2" fill="#111110" opacity="0.18"/>
+          <text x="258" y="378" font-family="'Geist Mono',monospace" font-size="9" fill="#a8a49e" letter-spacing="0.12em">LAYER 04</text>
+          <text x="258" y="398" font-family="'Plus Jakarta Sans',sans-serif" font-size="14" font-weight="600" fill="#111110">Infrastructure</text>
+          <text x="626" y="378" font-family="'Geist Mono',monospace" font-size="9" fill="#c4c1ba" text-anchor="end" letter-spacing="0.1em">PROTECTS</text>
+          <text x="258" y="408" font-family="'Geist Mono',monospace" font-size="9" fill="#c4c1ba">Governance, rituals, data: hard to reverse</text>
+        </g>
+
+        <!-- Locking bracket -->
+        <path class="hlock" d="M634 48 L648 48 L648 407 L634 407" fill="none" stroke="#111110" stroke-width="0.8" opacity="0.2"/>
+        <text class="henctxt" x="654" y="232" font-family="'Geist Mono',monospace" font-size="9" fill="#a8a49e" letter-spacing="0.1em">ENCODED</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 05 / The Three Tests</div><div class="fig-title">Where LLMs apply <em>pressure</em></div></div>
+    <div class="fig-body">
+      <div class="tests-grid">
+        <div class="test-card">
+          <div class="test-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 2v6h6M8 13h8M8 17h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <div class="test-num">Test 01</div>
+          <div class="test-heading">Production</div>
+          <div class="test-q">If models make content, code and analysis cheaper: what remains valuable?</div>
+        </div>
+        <div class="test-card">
+          <div class="test-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+          <div class="test-num">Test 02</div>
+          <div class="test-heading">Decision-making</div>
+          <div class="test-q">If customers ask machines before markets: why are you recommended?</div>
+        </div>
+        <div class="test-card">
+          <div class="test-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="test-num">Test 03</div>
+          <div class="test-heading">Operations</div>
+          <div class="test-q">If AI makes the company faster: what stops it making the company more generic?</div>
+        </div>
+      </div>
+    </div>
+    <div class="fig-cap">A company can produce more content, faster, with cleaner drafts and cheaper workflows, <strong>while slowly becoming less distinctive</strong>. The output improves. The edge disappears.</div>
+  </div>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">07</span> Growth without dilution</div>
+    <h2>What difference can we <em>now scale?</em></h2>
+    <div class="contrast-pair rv">
+      <div class="contrast-item contrast-bad">
+        <div class="contrast-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="contrast-label">Un-hardwired</div>
+        <div class="contrast-desc">AI makes more things, faster. More content. More variants. More activity. Less edge.</div>
+      </div>
+      <div class="contrast-divider">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="contrast-item contrast-good">
+        <div class="contrast-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+        <div class="contrast-label">Hardwired</div>
+        <div class="contrast-desc">AI scales what makes the company distinctive. Difference compounds, not dilutes.</div>
+      </div>
+    </div>
+    <p>A hardwired brand uses AI to scale what makes it distinctive. An un-hardwired brand uses AI to make more things, faster, with less edge: more content, more variants, more automation, more activity. <strong>Less difference.</strong></p>
+  </article>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">08</span> What CMOs should do first</div>
+    <h2>Start with a <em>difference audit.</em></h2>
+  </article>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 06 / Worksheet</div><div class="fig-title">The six-question <em>difference audit</em></div></div>
+    <div class="fig-body">
+      <div class="audit-grid">
+                <div class="audit-card">
+          <div class="audit-card-head">
+            <div class="audit-card-n">01</div>
+            <div class="audit-card-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3h12l3 5-9 13L3 8l3-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 8h18" stroke="currentColor" stroke-width="1.5"/></svg></div>
+          </div>
+          <div class="audit-card-q">What is our valuable <em>difference?</em></div>
+        </div>
+                <div class="audit-card">
+          <div class="audit-card-head">
+            <div class="audit-card-n">02</div>
+            <div class="audit-card-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg></div>
+          </div>
+          <div class="audit-card-q">Where does it actually <em>live?</em></div>
+        </div>
+                <div class="audit-card">
+          <div class="audit-card-head">
+            <div class="audit-card-n">03</div>
+            <div class="audit-card-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          </div>
+          <div class="audit-card-q">Is it still <em>load-bearing?</em></div>
+        </div>
+                <div class="audit-card">
+          <div class="audit-card-head">
+            <div class="audit-card-n">04</div>
+            <div class="audit-card-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v6c0 5 3.5 9.7 8 11 4.5-1.3 8-6 8-11V6L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="audit-card-q">What <em>protects</em> it?</div>
+        </div>
+                <div class="audit-card">
+          <div class="audit-card-head">
+            <div class="audit-card-n">05</div>
+            <div class="audit-card-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="17" r="0.5" stroke="currentColor" stroke-width="1.5"/></svg></div>
+          </div>
+          <div class="audit-card-q">Where is it vulnerable to being copied, averaged, automated or <em>routed around?</em></div>
+        </div>
+                <div class="audit-card">
+          <div class="audit-card-head">
+            <div class="audit-card-n">06</div>
+            <div class="audit-card-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="audit-card-q">What difference can we <em>now scale?</em></div>
+        </div>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Answering honestly is harder than it looks.</strong> Most companies discover their "difference" lives only in communications, not in the operating systems that would make it true.</div>
+  </div>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 07 / The Hard Test</div><div class="fig-title">Where does your <em>difference</em> actually live?</div></div>
+    <div class="fig-body">
+      <div class="promise-list">
+                <div class="promise-item">
+          <div class="promise-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+          <div class="promise-body">
+            <div class="promise-name">Difference in intimacy</div>
+            <div class="promise-q">Where is it built into service, data, CRM and decision rights?</div>
+          </div>
+        </div>
+                <div class="promise-item">
+          <div class="promise-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a7 7 0 107 7H12V2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2v9H3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <div class="promise-body">
+            <div class="promise-name">Difference in craft</div>
+            <div class="promise-q">Where is it protected from speed, scale and automation?</div>
+          </div>
+        </div>
+                <div class="promise-item">
+          <div class="promise-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <div class="promise-body">
+            <div class="promise-name">Difference in value</div>
+            <div class="promise-q">Where does it live in pricing, sourcing, membership and customer experience?</div>
+          </div>
+        </div>
+                <div class="promise-item">
+          <div class="promise-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v6c0 5 3.5 9.7 8 11 4.5-1.3 8-6 8-11V6L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="promise-body">
+            <div class="promise-name">Difference in trust</div>
+            <div class="promise-q">Where is it protected in governance, data, claims, support and AI deployment?</div>
+          </div>
+        </div>
+                <div class="promise-item">
+          <div class="promise-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+          <div class="promise-body">
+            <div class="promise-name">Difference in innovation</div>
+            <div class="promise-q">Where does AI help extend your difference rather than simply produce more noise?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fig-cap">The CMO's job is not to own every system. It is to ensure the company sees whether its systems <strong>protect and express the company's real difference</strong>.</div>
+  </div>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">09</span> The premium asset</div>
+    <div class="economy-icons rv">
+      <div class="econ-item"><div class="econ-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="econ-label">Searchable</div></div>
+      <div class="econ-item"><div class="econ-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="econ-label">Comparable</div></div>
+      <div class="econ-item"><div class="econ-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="1.5"/></svg></div><div class="econ-label">Reproducible</div></div>
+      <div class="econ-item"><div class="econ-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="econ-label">Recommendable</div></div>
+    </div>
+    <p>As intelligence becomes cheaper, more of the economy becomes searchable, comparable, reproducible and recommendable. Difference does not become less important. It becomes <strong>harder to sustain</strong>.</p>
+    <p>Brand is not the paint on the machine. It is the part of the machine that tells the company what must not be dissolved, and what can be grown without dilution.</p>
+  </article>
+</div>
+
+<div class="closing rv">
+  <div class="cl-inner">
+    <div class="cl-eye">&gt; The Boardroom Question</div>
+    <h3 class="cl-h">When everything gets easier to copy,<br><em>what have we made difficult to dissolve,</em><br>and what can we now <em>scale</em><br>because it is truly ours?</h3>
+    <div class="cl-card">
+      <div class="av">E</div>
+      <div>
+        <div class="av-name">Ed <em>Cotton</em></div>
+        <div class="av-role">Brand Consultant · Inverness Consulting · Brooklyn NY</div>
+      </div>
+      <a href="https://invernessconsult.com" target="_blank" class="av-cta">Visit Inverness →</a>
+    </div>
+  </div>
+</div>
+
+<div class="ch-foot">
+  <div class="ch-foot-inner">
+    <a href="#ch2" class="plink" data-mg onclick="goto('ch2')"><span class="pl-label">← Previous</span><span class="pl-title">II · The <em>Diagnosis</em></span><span class="pl-sub">The CMO's impossible brief</span></a>
+    <a href="#contact" class="plink r" data-mg onclick="goto('contact')"><span class="pl-label">Next →</span><span class="pl-title"><em>Contact</em></span><span class="pl-sub">Get in touch</span></a>
+  </div>
+</div>
+</section>
+
+
+
+<!-- ============================================================
+     CONTACT
+     ============================================================ -->
+<section id="contact">
+<div class="contact-masthead snap">
+  <div class="opener-top-bar">
+    <span>Contact &amp; Further Reading <span class="hi">/ Get in touch</span></span>
+    <span>Hardwired &#8470; 001 &middot; April 2026</span>
+  </div>
+  <div class="contact-masthead-inner">
+    <div class="contact-masthead-name">Ed Cotton</div>
+    <div class="contact-masthead-role">Brand Consultant &middot; Inverness Consulting &middot; Brooklyn NY</div>
+    <div class="contact-masthead-title"><em>Get in touch.</em></div>
+    <p class="contact-masthead-bio">Ed Cotton is a brand consultant based in New York with over 20 years of experience in advertising and consulting. Hardwired is his proprietary framework for evaluating how well organisations protect and mobilise their valuable difference in the era of cheap intelligence.</p>
+  </div>
+</div>
+
+<div class="contact-page-body">
+
+  <div class="contact-formal-section">
+    <div class="contact-formal-label">Direct contact</div>
+    <div class="contact-formal-grid">
+      <a href="mailto:edcotton1@gmail.com" class="contact-formal-row contact-formal-row-link">
+        <div class="contact-formal-field">Email</div>
+        <div class="contact-formal-val contact-formal-cta">Send a message →</div>
+      </a>
+      <a href="https://www.linkedin.com/in/edward-cotton-93b535/" target="_blank" class="contact-formal-row contact-formal-row-link">
+        <div class="contact-formal-field">LinkedIn</div>
+        <div class="contact-formal-val contact-formal-cta">View profile →</div>
+      </a>
+      <a href="https://invernessconsult.com" target="_blank" class="contact-formal-row contact-formal-row-link">
+        <div class="contact-formal-field">Website</div>
+        <div class="contact-formal-val contact-formal-cta">Visit Inverness →</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="contact-formal-section">
+    <div class="contact-formal-label">How Ed can help</div>
+    <div class="contact-services">
+      <div class="contact-service">
+        <div class="contact-service-num">01</div>
+        <div class="contact-service-name">Hardwired Assessment</div>
+        <div class="contact-service-desc">A bespoke Hardwired diagnostic applied to your organisation, scoring against the same four-gate framework used in the 52-company study, with a full written verdict and recommendations.</div>
+      </div>
+      <div class="contact-service">
+        <div class="contact-service-num">02</div>
+        <div class="contact-service-name">Full Study Access</div>
+        <div class="contact-service-desc">Request the complete research report with individual company scores, narrative verdicts, and detailed findings across all 52 companies in the study.</div>
+      </div>
+      <div class="contact-service">
+        <div class="contact-service-num">03</div>
+        <div class="contact-service-name">Brand Strategy</div>
+        <div class="contact-service-desc">Inverness Consulting works with a select number of clients on brand strategy, differentiation infrastructure, and AI-era positioning. Engagements typically run three to six months.</div>
+      </div>
+      <div class="contact-service">
+        <div class="contact-service-num">04</div>
+        <div class="contact-service-name">Speaking &amp; Workshops</div>
+        <div class="contact-service-desc">Ed speaks and leads workshops on brand difference and AI-readiness for senior leadership teams, marketing functions, and industry conferences.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-formal-section">
+    <div class="contact-formal-label">Further reading</div>
+    <div class="further-reading-list">
+
+      <a href="https://www.kantar.com/campaigns/brandz/global" target="_blank" class="further-item">
+        <div class="further-item-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="further-item-body">
+          <div class="further-item-source">Kantar BrandZ</div>
+          <div class="further-item-name">Most Valuable Global Brands</div>
+          <div class="further-item-desc">The world's most comprehensive brand equity database. The Meaningful, Different and Salient framework that underlies Hardwired's foundational argument: brands with strong Meaningful Difference are twice as likely to survive twenty years in the rankings.</div>
+        </div>
+        <div class="further-item-arrow">&#x2192;</div>
+      </a>
+
+      <a href="https://www.cnbc.com/2025/10/27/chegg-slashes-45percent-of-workforce-blames-new-realities-of-ai.html" target="_blank" class="further-item">
+        <div class="further-item-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="17" r="0.5" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="further-item-body">
+          <div class="further-item-source">CNBC · October 2025</div>
+          <div class="further-item-name">Chegg slashes 45% of workforce, blames new realities of AI</div>
+          <div class="further-item-desc">The clearest single case study of Terminal Vulnerability in the study. Chegg went from a $14 billion valuation to fighting for survival in under four years. The moat: homework help, expert answers, textbook rental: evaporated when students switched to ChatGPT.</div>
+        </div>
+        <div class="further-item-arrow">&#x2192;</div>
+      </a>
+
+      <a href="https://www.cbsnews.com/news/inside-hermes-with-artistic-director-pierre-alexis-dumas-60-minutes-transcript/" target="_blank" class="further-item">
+        <div class="further-item-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="further-item-body">
+          <div class="further-item-source">CBS 60 Minutes</div>
+          <div class="further-item-name">Inside Hermès with Artistic Director Pierre-Alexis Dumas</div>
+          <div class="further-item-desc">The definitive interview on what hardwiring actually looks like from the inside. Dumas on craft, refusal, philosophy, and why Hermès has never needed to advertise what it will not do. The Compounding case study in conversation form.</div>
+        </div>
+        <div class="further-item-arrow">&#x2192;</div>
+      </a>
+
+      <a href="https://fortune.com/2024/09/30/microsoft-ceo-satya-nadella-leadership-success-humility-culture-change/" target="_blank" class="further-item">
+        <div class="further-item-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L3 7l9 5 9-5-9-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 12l9 5 9-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="further-item-body">
+          <div class="further-item-source">Fortune · September 2024</div>
+          <div class="further-item-name">Satya Nadella returned Microsoft to the top by showing humility as CEO</div>
+          <div class="further-item-desc">How Nadella rewired Microsoft's internal philosophy from "know-it-all" to "learn-it-all": and grew market value from $300 billion to over $2.5 trillion in under a decade. The clearest example in the study of Re-Expression working: high downside exposure met with genuine structural readiness.</div>
+        </div>
+        <div class="further-item-arrow">&#x2192;</div>
+      </a>
+
+      <a href="https://www.inter.ikea.com/en/-/media/InterIKEA/IGI/Financial%20Reports/English_The_testament_of_a_dealer_2018.pdf" target="_blank" class="further-item">
+        <div class="further-item-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 2v6h6M8 13h8M8 17h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <div class="further-item-body">
+          <div class="further-item-source">Ingvar Kamprad · IKEA · 1976</div>
+          <div class="further-item-name">The Testament of a Furniture Dealer</div>
+          <div class="further-item-desc">Kamprad's founding document for IKEA: the philosophy, values, and operating principles written in 1976 that still govern the company today. The definitive example of a Compounding company: difference hardwired into a written constitution before the word "brand" was even part of the conversation.</div>
+        </div>
+        <div class="further-item-arrow">&#x2192;</div>
+      </a>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="ch-foot">
+  <div class="ch-foot-inner">
+    <a href="#ch3" class="plink" data-mg onclick="goto('ch3')"><span class="pl-label">&larr; Chapter III</span><span class="pl-title">The <em>System</em></span><span class="pl-sub">Architecture and audit</span></a>
+    <a href="#appendix" class="plink r" data-mg onclick="goto('appendix')"><span class="pl-label">Next &rarr;</span><span class="pl-title"><em>Companies</em></span><span class="pl-sub">The 52 companies evaluated</span></a>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================
+     APPENDIX
+     ============================================================ -->
+<section id="appendix">
+<div class="app-opener snap">
+  <div class="opener-top-bar">
+    <span>Appendix <span class="hi">/ Companies</span></span>
+    <span>Hardwired № 001 · April 2026</span>
+  </div>
+  <div class="app-opener-inner">
+    <div class="app-opener-tag">Study Appendix</div>
+    <h2 class="app-opener-title">The companies<br><em>evaluated.</em></h2>
+    <p class="app-opener-sub">The 52 companies evaluated in the Hardwired study are listed below. All are publicly listed. The Hardwired framework was applied against four structural criteria: understanding of valuable difference, load-bearing status under LLM conditions, infrastructure to protect it, and active mobilisation.</p>
+  </div>
+</div>
+
+<div class="app-body">
+
+  <div class="app-grid">
+          <div class="app-company">
+            <div class="app-co-name">Accenture</div>
+            <div class="app-co-sector">Professional Services</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Adobe</div>
+            <div class="app-co-sector">Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Airbnb</div>
+            <div class="app-co-sector">Travel & Hospitality</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Alphabet</div>
+            <div class="app-co-sector">Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Amazon</div>
+            <div class="app-co-sector">Retail / Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Apple</div>
+            <div class="app-co-sector">Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Berkshire Hathaway</div>
+            <div class="app-co-sector">Conglomerate</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Block</div>
+            <div class="app-co-sector">Financial Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Booking.com</div>
+            <div class="app-co-sector">Travel</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Chegg</div>
+            <div class="app-co-sector">Education Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Coca-Cola</div>
+            <div class="app-co-sector">Food &amp; Beverage</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Cognizant</div>
+            <div class="app-co-sector">Professional Services</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Colgate-Palmolive</div>
+            <div class="app-co-sector">Consumer Goods</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Comcast</div>
+            <div class="app-co-sector">Media / Telecom</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Costco</div>
+            <div class="app-co-sector">Retail</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Disney</div>
+            <div class="app-co-sector">Media &amp; Entertainment</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">DoorDash</div>
+            <div class="app-co-sector">Food Delivery</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Duolingo</div>
+            <div class="app-co-sector">Education Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Expedia</div>
+            <div class="app-co-sector">Travel</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Ferrari</div>
+            <div class="app-co-sector">Automotive</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Gartner</div>
+            <div class="app-co-sector">Research &amp; Advisory</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Goldman Sachs</div>
+            <div class="app-co-sector">Financial Services</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">H&amp;R Block</div>
+            <div class="app-co-sector">Financial Services</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Hermès</div>
+            <div class="app-co-sector">Luxury</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">IKEA</div>
+            <div class="app-co-sector">Retail</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Intuit</div>
+            <div class="app-co-sector">Financial Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">JPMorgan</div>
+            <div class="app-co-sector">Financial Services</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">LVMH</div>
+            <div class="app-co-sector">Luxury</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Marriott</div>
+            <div class="app-co-sector">Hospitality</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">McDonald's</div>
+            <div class="app-co-sector">Food &amp; Beverage</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Meta</div>
+            <div class="app-co-sector">Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Microsoft</div>
+            <div class="app-co-sector">Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Netflix</div>
+            <div class="app-co-sector">Media &amp; Entertainment</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">New York Times</div>
+            <div class="app-co-sector">Media</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Nvidia</div>
+            <div class="app-co-sector">Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Omnicom</div>
+            <div class="app-co-sector">Marketing Services</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Oracle</div>
+            <div class="app-co-sector">Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Palantir</div>
+            <div class="app-co-sector">Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Progressive</div>
+            <div class="app-co-sector">Insurance</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Publicis</div>
+            <div class="app-co-sector">Marketing Services</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">SAP</div>
+            <div class="app-co-sector">Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Salesforce</div>
+            <div class="app-co-sector">Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Shopify</div>
+            <div class="app-co-sector">Commerce Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Spotify</div>
+            <div class="app-co-sector">Media &amp; Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Teleperformance</div>
+            <div class="app-co-sector">Professional Services</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Tesla</div>
+            <div class="app-co-sector">Automotive / Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Uber</div>
+            <div class="app-co-sector">Transportation Technology</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Unilever</div>
+            <div class="app-co-sector">Consumer Goods</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Visa</div>
+            <div class="app-co-sector">Financial Services</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">WPP</div>
+            <div class="app-co-sector">Marketing Services</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">Walmart</div>
+            <div class="app-co-sector">Retail</div>
+          </div>
+          <div class="app-company">
+            <div class="app-co-name">ZoomInfo</div>
+            <div class="app-co-sector">Data &amp; Analytics</div>
+          </div>
+  </div>
+</div>
+
+<div class="ch-foot">
+  <div class="ch-foot-inner">
+    <a href="#ch3" class="plink" data-mg onclick="goto('ch3')"><span class="pl-label">← Chapter III</span><span class="pl-title">The <em>System</em></span><span class="pl-sub">Architecture and audit</span></a>
+    <a href="#cover" class="plink r" data-mg onclick="goto('cover')"><span class="pl-label">Return →</span><span class="pl-title">Cover &amp; <em>Contents</em></span><span class="pl-sub">Hardwired № 001</span></a>
+  </div>
+</div>
+</section>
+
+<script>
+// Cursor
+const dot = document.getElementById('cur-dot');
+const ring = document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+window.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;
+});
+(function tick(){
+  rx+=(mx-rx)*.16; ry+=(my-ry)*.16;
+  ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+  requestAnimationFrame(tick);
+})();
+document.querySelectorAll('a,button,[data-mg],.al,.test,.ai,.dq,.lr,.mx-cell,.fn').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hov'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hov'));
+});
+
+// Nav
+function goto(id,el){
+  if(el) el.preventDefault && el.preventDefault();
+  const t=document.getElementById(id);
+  if(t) t.scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.navlink').forEach(n=>n.classList.remove('on'));
+  const map={cover:0,ch1:1,ch2:2,ch3:3};
+  const links=document.querySelectorAll('.navlink');
+  if(links[map[id]]) links[map[id]].classList.add('on');
+  return false;
+}
+
+// Progress
+const pb=document.getElementById('prog-bar');
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  pb.style.width=Math.min(100,(h.scrollTop/(h.scrollHeight-h.clientHeight))*100)+'%';
+},{passive:true});
+
+// Reveal
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('lit');obs.unobserve(e.target);}});
+},{threshold:.1,rootMargin:'0px 0px -50px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+
+// Mouse-follow gradient on tiles / plinks
+document.querySelectorAll('[data-mg],.plink').forEach(t=>{
+  t.addEventListener('mousemove',e=>{
+    const r=t.getBoundingClientRect();
+    t.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+    t.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+  });
+});
+
+// Scroll-reveal pullquote word by word
+const pt=document.getElementById('pt');
+if(pt){
+  const wrap=document.createElement('div');
+  wrap.innerHTML=pt.innerHTML;
+  function splitTextNodes(node){
+    [...node.childNodes].forEach(c=>{
+      if(c.nodeType===3){
+        const f=document.createDocumentFragment();
+        c.textContent.split(/(\s+)/).forEach(p=>{
+          if(!p.trim()){f.appendChild(document.createTextNode(p));}
+          else{const s=document.createElement('span');s.className='sw';s.textContent=p;f.appendChild(s);}
+        });
+        c.replaceWith(f);
+      } else if(c.nodeType===1) splitTextNodes(c);
+    });
+  }
+  splitTextNodes(wrap);
+  pt.innerHTML=wrap.innerHTML;
+  const words=pt.querySelectorAll('.sw');
+  function updatePull(){
+    const r=pt.getBoundingClientRect();
+    const progress=(window.innerHeight*.75-r.top)/(window.innerHeight*.5);
+    const target=Math.floor(Math.max(0,Math.min(1,progress))*words.length);
+    words.forEach((w,i)=>w.classList.toggle('lit',i<target));
+  }
+  window.addEventListener('scroll',updatePull,{passive:true});
+  updatePull();
+}
+
+// Update nav on scroll
+const sections=[{id:'cover',i:0},{id:'ch1',i:1},{id:'ch2',i:2},{id:'ch3',i:3},{id:'contact',i:4},{id:'appendix',i:5}];
+const navLinks=document.querySelectorAll('.navlink');
+const scrollObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting&&e.intersectionRatio>.3){
+      const sec=sections.find(s=>s.id===e.target.id);
+      if(sec){navLinks.forEach((n,i)=>n.classList.toggle('on',i===sec.i));}
+    }
+  });
+},{threshold:.3});
+document.querySelectorAll('#cover,#ch1,#ch2,#ch3,#contact,#appendix').forEach(el=>scrollObs.observe(el));
+</script>
+</body>
+</html>
