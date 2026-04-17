@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hardwired № 001 — When intelligence gets cheap, difference gets expensive</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap');
+
+:root {
+  --bg: #0a0a0b;
+  --bg-1: #111113;
+  --bg-2: #17171a;
+  --bg-3: #1e1e22;
+  --ink: #f0ede8;
+  --ink-mute: #8a8880;
+  --ink-dim: #4a4845;
+  --rule: rgba(240,237,232,0.07);
+  --rule-2: rgba(240,237,232,0.12);
+  --accent: #ff5c28;
+  --accent-soft: rgba(255,92,40,0.10);
+  --accent-glow: rgba(255,92,40,0.3);
+  --lime: #c8f03c;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:'Geist',system-ui,sans-serif;font-weight:400;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}
+@media(hover:none){body{cursor:auto}}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--accent);color:var(--bg)}
+
+/* CURSOR */
+#cur-dot,#cur-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%;mix-blend-mode:difference;will-change:transform}
+#cur-dot{width:6px;height:6px;background:var(--ink);transform:translate(-50%,-50%)}
+#cur-ring{width:34px;height:34px;border:1px solid rgba(240,237,232,0.6);transform:translate(-50%,-50%);transition:width .25s ease,height .25s ease,border-color .25s ease}
+body.hov #cur-ring{width:52px;height:52px;border-color:var(--accent)}
+body.hov #cur-dot{background:var(--accent)}
+@media(hover:none){#cur-dot,#cur-ring{display:none}}
+
+/* ATMOSPHERE */
+.atm{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}
+.atm::before,.atm::after{content:"";position:absolute;border-radius:50%;filter:blur(130px);opacity:.55;animation:drift 20s ease-in-out infinite}
+.atm::before{width:600px;height:600px;background:radial-gradient(circle,var(--accent-glow),transparent 65%);top:-160px;left:-160px}
+.atm::after{width:700px;height:700px;background:radial-gradient(circle,rgba(200,240,60,0.1),transparent 65%);bottom:-220px;right:-180px;animation-delay:-10s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(35px,-25px) scale(1.06)}}
+.noise-layer{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.03;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* PROGRESS */
+#prog-rail{position:fixed;top:0;left:0;right:0;height:2px;z-index:200;background:transparent}
+#prog-bar{height:100%;width:0%;background:var(--accent);box-shadow:0 0 10px var(--accent-glow);transition:width .08s linear}
+
+/* FLOATING NAV */
+.topnav{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:100;background:rgba(14,14,16,0.75);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--rule-2);border-radius:100px;padding:6px;display:flex;align-items:center;gap:2px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.02em;box-shadow:0 12px 48px rgba(0,0,0,.5),0 0 0 1px rgba(255,92,40,.08)}
+.topnav .brand{padding:8px 14px 8px 12px;color:var(--ink);border-right:1px solid var(--rule-2);display:flex;align-items:center;gap:8px;margin-right:4px;font-weight:500;white-space:nowrap}
+.topnav .brand::before{content:"";width:6px;height:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 10px var(--accent-glow);animation:blink 2.2s ease-in-out infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 10px var(--accent-glow)}50%{opacity:.3;box-shadow:0 0 3px var(--accent-glow)}}
+.navlink{padding:8px 13px;border-radius:100px;color:var(--ink-mute);transition:background .2s,color .2s;display:flex;align-items:center;gap:5px;cursor:none;white-space:nowrap}
+.navlink:hover{background:var(--bg-3);color:var(--ink)}
+.navlink.on{background:var(--ink);color:var(--bg)}
+.nav-num{opacity:.5;font-size:10px}
+.navlink.on .nav-num{opacity:.5}
+@media(max-width:640px){.topnav{top:10px;padding:4px;font-size:10px}.topnav .brand{padding:6px 10px;font-size:10px}.navlink{padding:6px 9px}.nav-num{display:none}}
+
+/* SIDE RAIL */
+.sidemeta{position:fixed;left:20px;top:50%;transform:translateY(-50%) rotate(-90deg);transform-origin:left center;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-dim);z-index:40;white-space:nowrap;display:flex;gap:20px;align-items:center}
+.sidemeta .dot{color:var(--accent)}
+@media(max-width:900px){.sidemeta{display:none}}
+
+/* ===================== PAGES (scroll-snap) ===================== */
+.page-wrap{scroll-snap-type:y mandatory;overflow-y:scroll;height:100vh}
+.snap{scroll-snap-align:start;scroll-snap-stop:always;min-height:100vh}
+
+/* ===================== COVER ===================== */
+.cover{min-height:100vh;padding:100px 52px 60px;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.cover-top{display:grid;grid-template-columns:1fr auto 1fr;gap:30px;align-items:baseline;padding-bottom:18px;border-bottom:1px solid var(--rule)}
+.cover-top span{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.cover-top .mid{text-align:center;color:var(--accent)}
+.cover-top .r{text-align:right}
+
+.cover-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:70px 0 40px}
+.cover-kicker{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:44px;display:flex;align-items:center;gap:16px}
+.cover-kicker::before,.cover-kicker::after{content:"";height:1px;background:var(--ink-dim)}
+.cover-kicker::before{width:40px}
+.cover-kicker::after{flex:1}
+
+.cover-h1{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(56px,10.5vw,190px);line-height:.88;letter-spacing:-.035em;color:var(--ink);margin-bottom:52px}
+.cover-h1 em{font-style:italic;color:var(--accent)}
+.w{display:inline-block;opacity:0;transform:translateY(36px);animation:rise .9s cubic-bezier(.16,1,.3,1) forwards}
+.w1{animation-delay:.08s}.w2{animation-delay:.18s}.w3{animation-delay:.28s}.w4{animation-delay:.38s}.w5{animation-delay:.5s}.w6{animation-delay:.6s}.w7{animation-delay:.7s}
+@keyframes rise{to{opacity:1;transform:translateY(0)}}
+.cover-lede{max-width:660px;font-size:clamp(15px,1.4vw,18px);line-height:1.55;color:var(--ink-mute);opacity:0;animation:rise .9s cubic-bezier(.16,1,.3,1) .85s forwards}
+.cover-lede strong{color:var(--ink);font-weight:500}
+
+.cover-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);margin-top:0;opacity:0;animation:rise .9s cubic-bezier(.16,1,.3,1) 1.05s forwards}
+.stat-cell{padding:22px 16px 8px;border-right:1px solid var(--rule)}
+.stat-cell:last-child{border-right:none}
+.stat-label{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:8px;display:block}
+.stat-val{font-family:'Instrument Serif',serif;font-size:clamp(26px,3.2vw,40px);line-height:1;letter-spacing:-.02em;color:var(--ink);display:block}
+.stat-val em{font-style:italic;color:var(--accent)}
+.stat-sub{font-family:'Geist',sans-serif;font-size:12px;color:var(--ink-mute);margin-top:4px;display:block}
+.stat-sub a{color:var(--accent)}
+@media(max-width:700px){.cover{padding:86px 22px 40px}.cover-top{grid-template-columns:1fr 1fr;gap:10px}.cover-top .r{display:none}.cover-stats{grid-template-columns:1fr 1fr}}
+
+/* ===================== TOC / BENTO ===================== */
+.bento-section{padding:120px 52px;background:var(--bg)}
+.bento-header{max-width:1360px;margin:0 auto 56px;display:grid;grid-template-columns:180px 1fr;gap:40px;align-items:start;padding-bottom:32px;border-bottom:1px solid var(--rule)}
+.bento-tag{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);padding-top:14px}
+.bento-header h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(34px,5vw,68px);line-height:.98;letter-spacing:-.03em;color:var(--ink)}
+.bento-header h2 em{font-style:italic;color:var(--accent)}
+
+.grid{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.tile{background:var(--bg-1);border:1px solid var(--rule-2);border-radius:18px;padding:26px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative;transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s ease,background .3s ease;cursor:none}
+.tile::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),var(--accent-soft),transparent 55%);opacity:0;transition:opacity .35s ease;pointer-events:none;border-radius:inherit}
+.tile:hover{transform:translateY(-4px);border-color:rgba(255,92,40,.35);background:var(--bg-2)}
+.tile:hover::after{opacity:1}
+a.tile:hover{border-color:rgba(255,92,40,.5)}
+
+.c-6{grid-column:span 6}.c-4{grid-column:span 4}.c-3{grid-column:span 3}.c-12{grid-column:span 12}
+.r-2{grid-row:span 2}
+
+.tile-num{font-family:'Instrument Serif',serif;font-style:italic;font-size:58px;line-height:1;letter-spacing:-.04em;color:var(--accent)}
+.tile-tag{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.tile-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.tile-title{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,3vw,42px);line-height:1;letter-spacing:-.025em;color:var(--ink);margin-bottom:14px}
+.tile-title em{font-style:italic;color:var(--accent)}
+.tile-desc{font-size:14px;line-height:1.55;color:var(--ink-mute);margin-bottom:18px}
+.tile-cta{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);display:inline-flex;align-items:center;gap:8px;border:1px solid var(--rule-2);border-radius:100px;padding:9px 14px;background:var(--bg-2);transition:background .25s,border-color .25s,color .25s,gap .25s;align-self:flex-start}
+.tile:hover .tile-cta{background:var(--accent);color:var(--bg);border-color:var(--accent);gap:14px}
+
+.big-n{font-family:'Instrument Serif',serif;font-size:clamp(52px,5.5vw,80px);line-height:.95;letter-spacing:-.03em;color:var(--ink);margin:10px 0 6px}
+.big-n em{font-style:italic;color:var(--accent)}
+.n-label{font-size:13px;color:var(--ink-mute);line-height:1.4}
+
+.quote-text{font-family:'Instrument Serif',serif;font-size:clamp(20px,2.2vw,27px);line-height:1.22;letter-spacing:-.015em;color:var(--ink)}
+.quote-text em{font-style:italic;color:var(--accent)}
+
+.author-row{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center}
+.av{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--lime));display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-style:italic;font-size:24px;color:var(--bg);flex-shrink:0}
+.av-name{font-family:'Instrument Serif',serif;font-size:clamp(24px,2.5vw,32px);letter-spacing:-.02em;color:var(--ink);line-height:1}
+.av-name em{font-style:italic;color:var(--accent)}
+.av-role{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);margin-top:6px}
+.av-cta{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border:1px solid var(--accent);border-radius:100px;transition:background .25s,color .25s,gap .25s;white-space:nowrap;cursor:none}
+.av-cta:hover{background:var(--accent);color:var(--bg);gap:14px}
+
+@media(max-width:1000px){.grid{grid-template-columns:repeat(6,1fr)}.c-6,.c-3{grid-column:span 6}.c-4{grid-column:span 6}.c-12{grid-column:span 6}.c-3.r-1{grid-column:span 3}.author-row{grid-template-columns:1fr;gap:16px}.av-cta{align-self:flex-start}}
+@media(max-width:640px){.bento-section{padding:80px 22px}.bento-header{grid-template-columns:1fr;gap:14px}.grid{grid-template-columns:1fr}.c-3{grid-column:1}.author-row{grid-template-columns:auto 1fr;gap:16px}}
+
+/* ===================== CHAPTER OPENER ===================== */
+.opener{min-height:100vh;padding:100px 52px 60px;display:flex;flex-direction:column;justify-content:center;position:relative;border-bottom:1px solid var(--rule-2)}
+.opener-bar{display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:0;padding-bottom:18px;border-bottom:1px solid var(--rule)}
+.opener-bar .hi{color:var(--accent)}
+.numrow{display:flex;align-items:flex-end;gap:clamp(20px,4vw,56px);flex-wrap:wrap;margin:clamp(30px,5vw,60px) 0}
+.big-roman{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(180px,32vw,560px);line-height:.8;letter-spacing:-.05em;color:var(--accent);user-select:none;flex-shrink:0}
+.opener-words{padding-bottom:clamp(30px,5vw,70px)}
+.ch-label{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.ch-label::before{content:"";width:36px;height:1px;background:var(--accent)}
+.ch-title{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(50px,8.5vw,130px);line-height:.9;letter-spacing:-.035em;color:var(--ink)}
+.ch-title em{font-style:italic;color:var(--accent)}
+.opener-thesis{max-width:740px;margin-top:clamp(48px,7vw,96px);padding-top:28px;border-top:1px solid var(--rule);display:grid;grid-template-columns:120px 1fr;gap:28px}
+.th-label{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);padding-top:6px}
+.th-text{font-family:'Instrument Serif',serif;font-size:clamp(18px,2vw,26px);line-height:1.32;color:var(--ink);letter-spacing:-.012em}
+.th-text em{font-style:italic;color:var(--accent)}
+@media(max-width:700px){.opener{padding:86px 22px 52px}.opener-thesis{grid-template-columns:1fr;gap:10px}.big-roman{font-size:clamp(140px,38vw,280px)}}
+
+/* ===================== CONTENT ===================== */
+.prose{max-width:720px;margin:0 auto;padding:100px 52px}
+@media(max-width:700px){.prose{padding:70px 22px}}
+.sec{margin-bottom:88px}
+.eyebrow{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:22px;display:flex;align-items:center;gap:14px}
+.eyebrow .en{font-family:'Instrument Serif',serif;font-style:italic;font-size:20px;color:var(--ink);text-transform:none;letter-spacing:-.02em}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+.sec h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(30px,4.5vw,56px);line-height:.98;letter-spacing:-.025em;margin-bottom:36px;color:var(--ink)}
+.sec h2 em{font-style:italic;color:var(--accent)}
+.lede{font-family:'Instrument Serif',serif;font-size:clamp(22px,2.4vw,30px);line-height:1.32;color:var(--ink);letter-spacing:-.015em;margin-bottom:36px}
+.lede em{font-style:italic;color:var(--accent)}
+.sec p{font-size:17px;line-height:1.65;color:rgba(240,237,232,.8);margin-bottom:20px}
+.sec p strong{color:var(--ink);font-weight:500;background:linear-gradient(180deg,transparent 62%,rgba(255,92,40,.15) 62%);padding:0 2px}
+
+/* ===================== FIGURES ===================== */
+.fig{margin:56px -16px;background:var(--bg-1);border:1px solid var(--rule-2);border-radius:20px;overflow:hidden}
+.fig-top{display:flex;justify-content:space-between;align-items:baseline;padding:17px 24px;border-bottom:1px solid var(--rule);background:var(--bg-2);gap:16px}
+.fig-label{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.fig-title{font-family:'Instrument Serif',serif;font-size:clamp(16px,1.7vw,21px);line-height:1.15;color:var(--ink);letter-spacing:-.012em;text-align:right}
+.fig-title em{font-style:italic;color:var(--accent)}
+.fig-body{padding:32px 28px}
+.fig-cap{padding:16px 24px 18px;border-top:1px solid var(--rule);background:var(--bg-2);font-size:12.5px;line-height:1.55;color:var(--ink-mute)}
+.fig-cap strong{color:var(--ink);font-weight:500}
+@media(max-width:700px){.fig{margin:44px 0}.fig-body{padding:22px 18px}.fig-top{flex-direction:column;align-items:flex-start;gap:6px}.fig-title{text-align:left}}
+
+/* MATRIX */
+.mx{aspect-ratio:1.1/1;position:relative;max-width:640px;margin:0 auto}
+.mx-grid{position:absolute;inset:36px 36px 36px 36px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;border:1px solid var(--rule-2);border-radius:10px;overflow:hidden}
+.mx-cell{padding:18px;background:var(--bg-2);display:flex;flex-direction:column;justify-content:space-between;gap:12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);transition:background .3s ease;cursor:none}
+.mx-cell:nth-child(2n){border-right:none}.mx-cell:nth-child(n+3){border-bottom:none}
+.mx-cell:hover{background:var(--bg-3)}
+.mx-cell.ft{background:linear-gradient(135deg,var(--accent),#ff7c28)}
+.mx-cell.ft:hover{background:linear-gradient(135deg,#ff7035,var(--accent))}
+.cx-n{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim)}
+.mx-cell.ft .cx-n{color:rgba(10,10,11,.65)}
+.cx-name{font-family:'Instrument Serif',serif;font-size:clamp(16px,1.8vw,20px);font-weight:400;line-height:1.05;color:var(--ink);letter-spacing:-.012em}
+.mx-cell.ft .cx-name{color:var(--bg);font-style:italic}
+.cx-desc{font-size:11.5px;line-height:1.45;color:var(--ink-mute)}
+.mx-cell.ft .cx-desc{color:rgba(10,10,11,.8)}
+.ax-y{position:absolute;left:0;top:36px;bottom:36px;width:30px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:var(--ink-dim)}
+.ax-y span{writing-mode:vertical-rl;transform:rotate(180deg)}
+.ax-x{position:absolute;left:36px;right:0;bottom:0;height:30px;display:flex;justify-content:space-between;align-items:center;padding:0 12px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:var(--ink-dim)}
+
+/* DISTMAP */
+.dmap-wrap{display:grid;grid-template-columns:1fr 260px;gap:28px;align-items:start}
+@media(max-width:760px){.dmap-wrap{grid-template-columns:1fr}}
+.dmap{aspect-ratio:1.1/1;position:relative;max-width:540px;margin:0 auto}
+.dmap-grid{position:absolute;inset:36px 36px 36px 36px;border:1px solid var(--rule-2);border-radius:10px;overflow:hidden;background:var(--bg-2)}
+.dmap-grid::before,.dmap-grid::after{content:"";position:absolute;background:var(--rule-2)}
+.dmap-grid::before{left:50%;top:0;bottom:0;width:1px}
+.dmap-grid::after{top:50%;left:0;right:0;height:1px}
+.dq{position:absolute;width:50%;height:50%;cursor:none;transition:background .3s}
+.dq.q1{top:0;right:0}.dq.q2{bottom:0;right:0}.dq.q3{top:0;left:0}.dq.q4{bottom:0;left:0}
+.dq:hover,.dq.on{background:rgba(255,92,40,.08)}
+.dq-label{position:absolute;font-family:'Geist Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;display:flex;flex-direction:column;gap:1px}
+.dq.q1 .dq-label{top:10px;right:10px;align-items:flex-end;color:var(--accent)}
+.dq.q2 .dq-label{bottom:10px;right:10px;align-items:flex-end;color:var(--ink-dim)}
+.dq.q3 .dq-label{top:10px;left:10px;color:var(--ink-dim)}
+.dq.q4 .dq-label{bottom:10px;left:10px;color:var(--ink-dim)}
+.dq-n{font-family:'Instrument Serif',serif;font-style:italic;font-size:18px;color:var(--ink);letter-spacing:-.02em;line-height:1;text-transform:none}
+.dq.q1 .dq-n{color:var(--accent);font-size:23px}
+.dot{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--ink-mute);transform:translate(-50%,-50%);transition:opacity .3s ease,transform .3s ease;pointer-events:none}
+.dot.hl{background:var(--accent);width:8px;height:8px;box-shadow:0 0 0 2px rgba(255,92,40,.2)}
+.ax-y{position:absolute;left:0;top:36px;bottom:36px;width:30px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:var(--ink-dim)}
+.ax-y span{writing-mode:vertical-rl;transform:rotate(180deg)}
+.ax-x{position:absolute;left:36px;right:0;bottom:0;height:30px;display:flex;justify-content:space-between;align-items:center;padding:0 12px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:var(--ink-dim)}
+
+.legend-panel{display:flex;flex-direction:column;gap:10px}
+.lp-head{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:4px}
+.lr{background:var(--bg-2);border:1px solid var(--rule-2);border-radius:10px;padding:12px 14px;cursor:none;transition:border-color .25s,background .25s}
+.lr:hover,.lr.on{border-color:var(--accent);background:var(--accent-soft)}
+.lr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.lr-name{font-size:12.5px;font-weight:500;color:var(--ink);display:flex;align-items:center;gap:7px}
+.ls{width:7px;height:7px;border-radius:50%;background:var(--ink-mute)}
+.lr.hl .ls{background:var(--accent)}
+.lr-pct{font-family:'Instrument Serif',serif;font-style:italic;font-size:18px;color:var(--accent);letter-spacing:-.02em;line-height:1}
+.lr-n{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim)}
+
+/* MOATS */
+.moats-grid{display:grid;grid-template-columns:1fr 32px 1fr;gap:16px;align-items:stretch}
+@media(max-width:620px){.moats-grid{grid-template-columns:1fr}}
+.mc-label{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);padding-bottom:10px;border-bottom:1px solid var(--rule);margin-bottom:0}
+.mc.now .mc-label{color:var(--accent)}
+.moat-item{padding:13px 0;border-bottom:1px dashed var(--rule-2);font-size:12.5px;line-height:1.5;color:var(--ink-mute)}
+.moat-item:last-child{border-bottom:none}
+.moat-item strong{display:block;font-family:'Instrument Serif',serif;font-weight:400;font-size:17px;color:var(--ink);margin-bottom:3px;letter-spacing:-.01em}
+.mc.now .moat-item strong{color:var(--accent);font-style:italic}
+.moats-arrow{display:flex;align-items:center;justify-content:center;color:var(--accent)}
+.moats-arrow svg{width:32px;height:auto}
+@media(max-width:620px){.moats-arrow{transform:rotate(90deg);padding:8px 0}}
+
+/* FLOW */
+.flow{display:grid;grid-template-columns:1fr auto 1fr;gap:22px;align-items:center}
+@media(max-width:620px){.flow{grid-template-columns:1fr}.flow-arr{transform:rotate(90deg);padding:6px 0}}
+.fn{padding:24px 20px;background:var(--bg-2);border:1px solid var(--rule-2);border-radius:14px;transition:border-color .3s,transform .3s}
+.fn:hover{transform:translateY(-2px)}
+.fn.to{border-color:rgba(255,92,40,.4);background:linear-gradient(135deg,var(--accent-soft),transparent)}
+.fn-label{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:10px}
+.fn.to .fn-label{color:var(--accent)}
+.fn-title{font-family:'Instrument Serif',serif;font-size:clamp(21px,2.4vw,30px);font-weight:400;line-height:1.05;color:var(--ink);letter-spacing:-.02em;margin-bottom:8px}
+.fn.to .fn-title{font-style:italic}
+.fn-sub{font-size:12.5px;line-height:1.5;color:var(--ink-mute)}
+.flow-arr{display:flex;flex-direction:column;align-items:center;gap:8px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.arr-line{width:54px;height:1px;background:var(--accent);position:relative}
+.arr-line::after{content:"";position:absolute;right:-1px;top:50%;transform:translateY(-50%);border-left:6px solid var(--accent);border-top:4px solid transparent;border-bottom:4px solid transparent}
+
+/* ARCH */
+.arch{display:flex;flex-direction:column;gap:7px}
+.al{display:grid;grid-template-columns:54px 1fr auto;gap:20px;padding:20px 22px;background:var(--bg-2);border:1px solid var(--rule-2);border-radius:12px;align-items:center;transition:all .3s cubic-bezier(.2,.8,.2,1);cursor:none}
+.al:hover{border-color:rgba(255,92,40,.4);background:var(--bg-3);transform:translateX(5px)}
+.al.base{background:linear-gradient(135deg,var(--accent),#ff8028);border-color:var(--accent)}
+.al.base:hover{transform:translateX(5px) scale(1.01)}
+.an{font-family:'Instrument Serif',serif;font-style:italic;font-size:40px;color:var(--accent);line-height:1;letter-spacing:-.03em}
+.al.base .an{color:var(--bg)}
+.aname{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(19px,2.1vw,25px);color:var(--ink);letter-spacing:-.018em;line-height:1;margin-bottom:3px}
+.al.base .aname{color:var(--bg)}
+.aq{font-size:12.5px;color:var(--ink-mute);line-height:1.5}
+.al.base .aq{color:rgba(10,10,11,.8)}
+.arole{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);text-align:right;white-space:nowrap}
+.al.base .arole{color:rgba(10,10,11,.7)}
+
+/* TRIPTYCH */
+.tri{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+@media(max-width:720px){.tri{grid-template-columns:1fr}}
+.test{padding:22px;background:var(--bg-2);border:1px solid var(--rule-2);border-radius:12px;transition:all .3s ease;cursor:none}
+.test:hover{background:var(--bg-3);border-color:rgba(255,92,40,.35);transform:translateY(-3px)}
+.test:nth-child(2){background:linear-gradient(135deg,var(--accent),#ff8028);border-color:var(--accent)}
+.test:nth-child(2):hover{transform:translateY(-3px)}
+.tn{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.test:nth-child(2) .tn{color:rgba(10,10,11,.7)}
+.tname{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(22px,2.3vw,30px);color:var(--ink);letter-spacing:-.02em;line-height:1;margin-bottom:14px}
+.test:nth-child(2) .tname{color:var(--bg);font-style:italic}
+.tq{font-size:12.5px;line-height:1.55;color:var(--ink-mute);padding-top:12px;border-top:1px dashed var(--rule-2)}
+.test:nth-child(2) .tq{color:rgba(10,10,11,.8);border-top-color:rgba(10,10,11,.2)}
+
+/* AUDIT */
+.audit{display:flex;flex-direction:column}
+.ai{display:grid;grid-template-columns:44px 1fr 22px;gap:16px;padding:18px 0;border-top:1px solid var(--rule);align-items:center;transition:padding .3s,background .3s;border-radius:8px;cursor:none}
+.ai:last-child{border-bottom:1px solid var(--rule)}
+.ai:hover{background:var(--accent-soft);padding-left:10px;padding-right:10px}
+.ai-n{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.ai-q{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(16px,1.8vw,22px);line-height:1.25;color:var(--ink);letter-spacing:-.012em}
+.ai-q em{font-style:italic;color:var(--accent)}
+.ai-box{width:18px;height:18px;border:1px solid var(--rule-2);border-radius:4px;transition:all .25s}
+.ai:hover .ai-box{border-color:var(--accent);background:var(--accent)}
+
+/* PROMISES */
+.prom{display:grid;grid-template-columns:auto 1fr;gap:0 24px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.pr{display:contents}
+.pl,.pq{padding:18px 0;border-bottom:1px dashed var(--rule-2)}
+.pr:last-child .pl,.pr:last-child .pq{border-bottom:none}
+.pl{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(18px,2vw,24px);font-weight:400;color:var(--accent);letter-spacing:-.012em;line-height:1;min-width:200px;white-space:nowrap}
+.pq{font-size:13.5px;color:var(--ink-mute);line-height:1.5;display:flex;align-items:center}
+@media(max-width:620px){.prom{grid-template-columns:1fr}.pl{padding-bottom:4px;border-bottom:none;white-space:normal}.pq{padding-top:4px}}
+
+/* PULL QUOTE */
+.pull{padding:120px 52px;max-width:1160px;margin:0 auto}
+.pull-eye{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:36px;display:flex;align-items:center;gap:14px}
+.pull-eye::before{content:"";width:44px;height:1px;background:var(--accent)}
+.pull-text{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(36px,6.5vw,100px);line-height:.95;letter-spacing:-.03em;color:var(--ink)}
+.pull-text em{font-style:italic;color:var(--accent)}
+.sw{display:inline-block;opacity:.18;transform:translateY(10px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.8,.2,1)}
+.sw.lit{opacity:1;transform:translateY(0)}
+@media(max-width:700px){.pull{padding:80px 22px}}
+
+/* CHAPTER FOOTER */
+.ch-foot{padding:72px 52px 100px;background:var(--bg-1);border-top:1px solid var(--rule-2)}
+.ch-foot-inner{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.plink{padding:26px;border:1px solid var(--rule-2);border-radius:18px;background:var(--bg-2);display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s;cursor:none}
+.plink::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),var(--accent-soft),transparent 50%);opacity:0;transition:opacity .35s ease;pointer-events:none;border-radius:inherit}
+.plink:hover{transform:translateY(-4px);border-color:rgba(255,92,40,.4)}
+.plink:hover::after{opacity:1}
+.plink.r{text-align:right;align-items:flex-end}
+.pl-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.pl-title{font-family:'Instrument Serif',serif;font-size:clamp(24px,2.8vw,36px);line-height:1;letter-spacing:-.025em;color:var(--ink)}
+.pl-title em{font-style:italic;color:var(--accent)}
+.pl-sub{font-size:12.5px;color:var(--ink-mute)}
+@media(max-width:640px){.ch-foot{padding:52px 22px 80px}.ch-foot-inner{grid-template-columns:1fr}}
+
+/* CLOSING */
+.closing{padding:140px 52px;border-top:1px solid var(--rule-2)}
+.cl-inner{max-width:1160px;margin:0 auto}
+.cl-eye{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:44px;display:flex;align-items:center;gap:14px}
+.cl-eye::before{content:"";width:44px;height:1px;background:var(--accent)}
+.cl-h{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(32px,5.5vw,80px);line-height:1.02;letter-spacing:-.03em;color:var(--ink);margin-bottom:60px}
+.cl-h em{font-style:italic;color:var(--accent)}
+.cl-card{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;padding:26px 30px;background:var(--bg-1);border:1px solid var(--rule-2);border-radius:18px}
+@media(max-width:640px){.closing{padding:90px 22px}.cl-card{grid-template-columns:1fr;gap:16px}}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .85s cubic-bezier(.2,.8,.2,1),transform .85s cubic-bezier(.2,.8,.2,1)}
+.rv.lit{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="atm"></div>
+<div class="noise-layer"></div>
+<div id="cur-ring"></div>
+<div id="cur-dot"></div>
+<div id="prog-rail"><div id="prog-bar"></div></div>
+
+<!-- NAV -->
+<nav class="topnav">
+  <span class="brand">HDWR <span style="color:var(--ink-mute);font-size:10px">/001</span></span>
+  <a href="#cover" class="navlink on" onclick="goto('cover',this)"><span>Cover</span></a>
+  <a href="#ch1" class="navlink" onclick="goto('ch1',this)"><span class="nav-num">I</span><span>Finding</span></a>
+  <a href="#ch2" class="navlink" onclick="goto('ch2',this)"><span class="nav-num">II</span><span>Diagnosis</span></a>
+  <a href="#ch3" class="navlink" onclick="goto('ch3',this)"><span class="nav-num">III</span><span>System</span></a>
+</nav>
+
+<div class="sidemeta">
+  <span>Field Notes № 001</span><span class="dot">●</span><span>April 2026</span><span class="dot">●</span><span>By Ed Cotton</span>
+</div>
+
+<!-- ============================================================
+     COVER
+     ============================================================ -->
+<section id="cover" class="cover snap">
+  <div class="cover-top">
+    <span>Hardwired / Field Notes</span>
+    <span class="mid">№ 001 · Strategy · Brand · AI</span>
+    <span class="r">April 2026 · Brooklyn NY</span>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-kicker">An essay in three chapters by Ed Cotton</div>
+    <h1 class="cover-h1">
+      <span class="w w1">When</span>
+      <span class="w w2">intelligence</span>
+      <span class="w w3">gets</span>
+      <span class="w w4"><em>cheap,</em></span><br>
+      <span class="w w5">difference</span>
+      <span class="w w6">gets</span>
+      <span class="w w7"><em>expensive.</em></span>
+    </h1>
+    <p class="cover-lede">
+      A study of sixty public companies, and what their preparedness for the next generation of AI reveals about <strong>brand</strong>, <strong>difference</strong>, and the job of the modern <strong>CMO</strong>.
+    </p>
+  </div>
+
+  <div class="cover-stats">
+    <div class="stat-cell">
+      <span class="stat-label">Author</span>
+      <span class="stat-val">Ed <em>Cotton</em></span>
+      <span class="stat-sub"><a href="https://invernessconsult.com" target="_blank">invernessconsult.com →</a></span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">Study</span>
+      <span class="stat-val">60 <em>firms</em></span>
+      <span class="stat-sub">Public companies · 2026</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">Read</span>
+      <span class="stat-val">14 <em>min</em></span>
+      <span class="stat-sub">Three chapters</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">Issue</span>
+      <span class="stat-val">№ <em>001</em></span>
+      <span class="stat-sub">Brooklyn NY · Apr 2026</span>
+    </div>
+  </div>
+</section>
+
+<!-- TOC BENTO -->
+<div class="bento-section">
+  <div class="bento-header rv">
+    <div class="bento-tag">&gt; Contents</div>
+    <h2>Three chapters on <em>difference</em> in the LLM era.</h2>
+  </div>
+  <div class="grid">
+    <a href="#ch1" class="tile c-6 r-2 rv" data-mg onclick="goto('ch1')">
+      <div class="tile-head"><span class="tile-num">I</span><span class="tile-tag">Chapter One →</span></div>
+      <div>
+        <div class="tile-title">The <em>Finding.</em></div>
+        <p class="tile-desc">What sixty public companies revealed about preparedness for the next generation of AI — and why the strongest were not the loudest adopters.</p>
+      </div>
+      <span class="tile-cta">Open chapter →</span>
+    </a>
+    <a href="#ch2" class="tile c-6 r-2 rv" data-mg onclick="goto('ch2')">
+      <div class="tile-head"><span class="tile-num">II</span><span class="tile-tag">Chapter Two →</span></div>
+      <div>
+        <div class="tile-title">The <em>Diagnosis.</em></div>
+        <p class="tile-desc">Why the CMO has long been asked to manufacture distinctiveness without owning the systems that create it — and why cheap intelligence turns that into an urgent problem.</p>
+      </div>
+      <span class="tile-cta">Open chapter →</span>
+    </a>
+    <div class="tile c-3 rv">
+      <span class="tile-tag">Study size</span>
+      <div class="big-n"><em>60</em></div>
+      <p class="n-label">Public companies audited against four structural criteria.</p>
+    </div>
+    <div class="tile c-3 rv">
+      <span class="tile-tag">Quadrant I</span>
+      <div class="big-n">13<em>%</em></div>
+      <p class="n-label">Difference embedded and actively mobilised.</p>
+    </div>
+    <div class="tile c-3 rv">
+      <span class="tile-tag">Quadrant IV</span>
+      <div class="big-n">34<em>%</em></div>
+      <p class="n-label">Exposed and dissolving — historic advantages eroding.</p>
+    </div>
+    <div class="tile c-3 rv">
+      <span class="tile-tag">Framework</span>
+      <div class="big-n">4 <em>layers</em></div>
+      <p class="n-label">Philosophy · Vision · Decisions · Infrastructure.</p>
+    </div>
+    <a href="#ch3" class="tile c-12 rv" data-mg onclick="goto('ch3')">
+      <div class="tile-head"><span class="tile-num">III</span><span class="tile-tag">Chapter Three · The longest →</span></div>
+      <div style="max-width:680px">
+        <div class="tile-title">The <em>System.</em></div>
+        <p class="tile-desc">What Hardwired is, how its four layers work, and what the CMO does on Monday morning — the architecture, the three tests, the six-question difference audit, and the promise worksheet.</p>
+      </div>
+      <span class="tile-cta" style="margin-top:14px">Open chapter →</span>
+    </a>
+    <div class="tile c-6 rv">
+      <span class="tile-tag">Thesis · Ch I</span>
+      <p class="quote-text">AI preparedness is <em>not</em> AI activity. It is <em>difference</em> preparedness.</p>
+    </div>
+    <div class="tile c-6 rv">
+      <span class="tile-tag">Thesis · Ch III</span>
+      <p class="quote-text">Brand is not the paint on the machine. It is the part that tells the company <em>what must not be dissolved.</em></p>
+    </div>
+    <div class="tile c-12 rv">
+      <div class="author-row">
+        <div class="av">E</div>
+        <div>
+          <div class="av-name">Ed <em>Cotton</em></div>
+          <div class="av-role">Brand Consultant · Inverness Consulting · Brooklyn NY</div>
+        </div>
+        <a href="https://invernessconsult.com" target="_blank" class="av-cta">Visit Inverness →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CHAPTER I
+     ============================================================ -->
+<section id="ch1">
+<div class="opener snap">
+  <div class="opener-bar">
+    <span>Chapter One of Three <span class="hi">/ 01</span></span>
+    <span>Hardwired № 001 · April 2026</span>
+  </div>
+  <div class="numrow">
+    <div class="big-roman">I</div>
+    <div class="opener-words">
+      <div class="ch-label">The</div>
+      <div class="ch-title"><em>Finding.</em></div>
+    </div>
+  </div>
+  <div class="opener-thesis">
+    <div class="th-label">Thesis</div>
+    <p class="th-text">What sixty public companies revealed about preparedness for the next generation of AI — and why the strongest were not the <em>loudest adopters</em>, but the ones who had turned difference into <em>structure</em>.</p>
+  </div>
+</div>
+
+<div class="prose">
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">01</span> The question</div>
+    <p class="lede">This began as a simple question: why do some companies look <em>better prepared</em> for the next generation of AI than others?</p>
+    <p>Not better prepared in the cosmetic sense. Not more press releases or pilots or "AI-powered" language in the annual report. Prepared in the deeper sense: able to use the technology without becoming generic, able to defend what makes them valuable, and able to grow from a difference that still matters.</p>
+    <p>So I looked at 60 public companies. The test was structural. Did the company understand its valuable difference? Was that difference still load-bearing under advanced LLM conditions? Had it built infrastructure to protect and evolve it?</p>
+    <p>The results did not show that AI companies win and old companies lose. They showed something more interesting. <strong>The companies best prepared for cheap intelligence were often those that had already turned difference into structure.</strong></p>
+  </article>
+
+  <!-- FIG 01 MATRIX -->
+  <div class="fig rv">
+    <div class="fig-top">
+      <div class="fig-label">Fig. 01 / Typology</div>
+      <div class="fig-title">Four kinds of company under <em>LLM pressure</em></div>
+    </div>
+    <div class="fig-body">
+      <div class="mx">
+        <div class="ax-y"><span>High</span><span>Low</span></div>
+        <div class="mx-grid">
+          <div class="mx-cell"><div class="cx-n">III</div><div><div class="cx-name">Protected but Passive</div><div class="cx-desc">Formidable structural advantages, but not yet fully mobilised against the new conditions.</div></div></div>
+          <div class="mx-cell ft"><div class="cx-n">I</div><div><div class="cx-name">Hardwired &amp; Responsive</div><div class="cx-desc">Difference embedded and actively mobilised. The shared trait is protected difference.</div></div></div>
+          <div class="mx-cell"><div class="cx-n">IV</div><div><div class="cx-name">Exposed &amp; Dissolving</div><div class="cx-desc">Old advantages depended on frictions that LLMs are erasing.</div></div></div>
+          <div class="mx-cell"><div class="cx-n">II</div><div><div class="cx-name">Coherent but Conditional</div><div class="cx-desc">Real systems, but with fragility around leadership, infrastructure or durability.</div></div></div>
+        </div>
+        <div class="ax-x"><span>Low</span><span>High</span></div>
+      </div>
+    </div>
+    <div class="fig-cap">Plotted against two axes — whether the company's valuable difference is structurally protected, and whether that difference is actively mobilised. <strong>Quadrant I is the destination.</strong> Most companies sit elsewhere.</div>
+  </div>
+
+  <!-- FIG 01b INTERACTIVE MAP -->
+  <div class="fig rv">
+    <div class="fig-top">
+      <div class="fig-label">Fig. 01b / Distribution · Interactive</div>
+      <div class="fig-title">Where the <em>60 companies</em> actually sit</div>
+    </div>
+    <div class="fig-body">
+      <div class="dmap-wrap">
+        <div class="dmap">
+          <div class="ax-y"><span>High</span><span>Low</span></div>
+          <div class="dmap-grid" id="dm">
+            <div class="dq q3" data-q="3"><div class="dq-label"><span>Q III</span><span class="dq-n">14</span></div></div>
+            <div class="dq q1" data-q="1"><div class="dq-label"><span>Q I</span><span class="dq-n">8</span></div></div>
+            <div class="dq q4" data-q="4"><div class="dq-label"><span>Q IV</span><span class="dq-n">20</span></div></div>
+            <div class="dq q2" data-q="2"><div class="dq-label"><span>Q II</span><span class="dq-n">18</span></div></div>
+            <!-- Q1 dots (orange) -->
+            <div class="dot hl" style="left:79%;top:9%" data-q="1"></div>
+            <div class="dot hl" style="left:66%;top:16%" data-q="1"></div>
+            <div class="dot hl" style="left:83%;top:32%" data-q="1"></div>
+            <div class="dot hl" style="left:88%;top:11%" data-q="1"></div>
+            <div class="dot hl" style="left:71%;top:9%" data-q="1"></div>
+            <div class="dot hl" style="left:64%;top:26%" data-q="1"></div>
+            <div class="dot hl" style="left:57%;top:15%" data-q="1"></div>
+            <div class="dot hl" style="left:79%;top:28%" data-q="1"></div>
+            <!-- Q2 -->
+            <div class="dot" style="left:64%;top:77%" data-q="2"></div><div class="dot" style="left:85%;top:56%" data-q="2"></div>
+            <div class="dot" style="left:85%;top:81%" data-q="2"></div><div class="dot" style="left:68%;top:62%" data-q="2"></div>
+            <div class="dot" style="left:90%;top:68%" data-q="2"></div><div class="dot" style="left:59%;top:60%" data-q="2"></div>
+            <div class="dot" style="left:75%;top:91%" data-q="2"></div><div class="dot" style="left:70%;top:76%" data-q="2"></div>
+            <div class="dot" style="left:87%;top:77%" data-q="2"></div><div class="dot" style="left:81%;top:58%" data-q="2"></div>
+            <div class="dot" style="left:64%;top:66%" data-q="2"></div><div class="dot" style="left:59%;top:64%" data-q="2"></div>
+            <div class="dot" style="left:79%;top:69%" data-q="2"></div><div class="dot" style="left:66%;top:90%" data-q="2"></div>
+            <div class="dot" style="left:79%;top:78%" data-q="2"></div><div class="dot" style="left:62%;top:82%" data-q="2"></div>
+            <div class="dot" style="left:92%;top:79%" data-q="2"></div><div class="dot" style="left:76%;top:81%" data-q="2"></div>
+            <!-- Q3 -->
+            <div class="dot" style="left:38%;top:36%" data-q="3"></div><div class="dot" style="left:16%;top:9%" data-q="3"></div>
+            <div class="dot" style="left:19%;top:18%" data-q="3"></div><div class="dot" style="left:16%;top:42%" data-q="3"></div>
+            <div class="dot" style="left:40%;top:19%" data-q="3"></div><div class="dot" style="left:32%;top:22%" data-q="3"></div>
+            <div class="dot" style="left:41%;top:25%" data-q="3"></div><div class="dot" style="left:28%;top:18%" data-q="3"></div>
+            <div class="dot" style="left:29%;top:40%" data-q="3"></div><div class="dot" style="left:11%;top:10%" data-q="3"></div>
+            <div class="dot" style="left:12%;top:31%" data-q="3"></div><div class="dot" style="left:37%;top:23%" data-q="3"></div>
+            <div class="dot" style="left:10%;top:22%" data-q="3"></div><div class="dot" style="left:43%;top:39%" data-q="3"></div>
+            <!-- Q4 -->
+            <div class="dot" style="left:8%;top:82%" data-q="4"></div><div class="dot" style="left:33%;top:75%" data-q="4"></div>
+            <div class="dot" style="left:18%;top:79%" data-q="4"></div><div class="dot" style="left:12%;top:72%" data-q="4"></div>
+            <div class="dot" style="left:24%;top:90%" data-q="4"></div><div class="dot" style="left:40%;top:66%" data-q="4"></div>
+            <div class="dot" style="left:26%;top:62%" data-q="4"></div><div class="dot" style="left:41%;top:87%" data-q="4"></div>
+            <div class="dot" style="left:30%;top:62%" data-q="4"></div><div class="dot" style="left:8%;top:68%" data-q="4"></div>
+            <div class="dot" style="left:9%;top:89%" data-q="4"></div><div class="dot" style="left:19%;top:58%" data-q="4"></div>
+            <div class="dot" style="left:36%;top:61%" data-q="4"></div><div class="dot" style="left:25%;top:76%" data-q="4"></div>
+            <div class="dot" style="left:18%;top:87%" data-q="4"></div><div class="dot" style="left:27%;top:82%" data-q="4"></div>
+            <div class="dot" style="left:15%;top:67%" data-q="4"></div><div class="dot" style="left:44%;top:79%" data-q="4"></div>
+            <div class="dot" style="left:12%;top:64%" data-q="4"></div><div class="dot" style="left:16%;top:61%" data-q="4"></div>
+          </div>
+          <div class="ax-x"><span>Low</span><span>High</span></div>
+        </div>
+        <div class="legend-panel">
+          <div class="lp-head">&gt; Click or hover a quadrant</div>
+          <div class="lr hl" data-l="1"><div class="lr-top"><span class="lr-name"><span class="ls"></span>Hardwired &amp; Responsive</span><span class="lr-pct"><em>13%</em></span></div><span class="lr-n">Quadrant I · n = 8</span></div>
+          <div class="lr" data-l="2"><div class="lr-top"><span class="lr-name"><span class="ls"></span>Coherent but Conditional</span><span class="lr-pct"><em>30%</em></span></div><span class="lr-n">Quadrant II · n = 18</span></div>
+          <div class="lr" data-l="3"><div class="lr-top"><span class="lr-name"><span class="ls"></span>Protected but Passive</span><span class="lr-pct"><em>23%</em></span></div><span class="lr-n">Quadrant III · n = 14</span></div>
+          <div class="lr" data-l="4"><div class="lr-top"><span class="lr-name"><span class="ls"></span>Exposed &amp; Dissolving</span><span class="lr-pct"><em>34%</em></span></div><span class="lr-n">Quadrant IV · n = 20</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Each dot = one of the 60 companies studied</strong>; identities withheld. Roughly one in eight sits in Quadrant I. The remainder are either protected but unmobilised, coherent but fragile, or exposed and dissolving.</div>
+  </div>
+
+  <article class="sec rv">
+    <p>That matters most to CMOs because they have spent years being asked to make companies distinctive, memorable and trusted, while many of the real sources of difference sat outside marketing. Next-generation LLMs make that bargain harder to sustain.</p>
+  </article>
+</div>
+
+<div class="pull rv">
+  <div class="pull-eye">&gt; The Finding</div>
+  <p class="pull-text" id="pt">AI preparedness is <em>not</em> AI activity. It is <em>difference</em> preparedness.</p>
+</div>
+
+<div class="ch-foot">
+  <div class="ch-foot-inner">
+    <a href="#cover" class="plink" data-mg onclick="goto('cover')"><span class="pl-label">← Cover</span><span class="pl-title">Contents &amp; <em>Cover</em></span><span class="pl-sub">Hardwired № 001</span></a>
+    <a href="#ch2" class="plink r" data-mg onclick="goto('ch2')"><span class="pl-label">Next →</span><span class="pl-title">II · The <em>Diagnosis</em></span><span class="pl-sub">Why the CMO's brief keeps breaking</span></a>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================
+     CHAPTER II
+     ============================================================ -->
+<section id="ch2">
+<div class="opener snap">
+  <div class="opener-bar">
+    <span>Chapter Two of Three <span class="hi">/ 02</span></span>
+    <span>Hardwired № 001 · April 2026</span>
+  </div>
+  <div class="numrow">
+    <div class="big-roman">II</div>
+    <div class="opener-words">
+      <div class="ch-label">The</div>
+      <div class="ch-title"><em>Diagnosis.</em></div>
+    </div>
+  </div>
+  <div class="opener-thesis">
+    <div class="th-label">Thesis</div>
+    <p class="th-text">Why the CMO has long been asked to manufacture <em>distinctiveness</em> without owning the systems that create it — and why cheap intelligence turns that old problem into an <em>urgent</em> one.</p>
+  </div>
+</div>
+
+<div class="prose">
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">02</span> The impossible brief</div>
+    <h2>Make us <em>famous</em>. Make us <em>trusted</em>. Make us <em>premium</em>.</h2>
+    <p class="lede">CMOs have long been asked to perform a small miracle — make us famous, trusted, premium, distinctive. Shift perception. Create demand. Drive growth.</p>
+    <p>None of this goes away. Brand still has to be known to be chosen. But there has always been a catch. In many companies, the CMO is made responsible for distinctiveness while the real sources of distinctiveness sit somewhere else: product, service, pricing, supply chain, retail experience, data, operations, culture.</p>
+    <p>Brand became the wrapper. The serious work lived in other rooms. The one thing that joined all the silos, and made the company valuable, became nobody's full responsibility: <strong>difference</strong>. That was always a problem. Cheap intelligence is making it dangerous.</p>
+  </article>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">03</span> The hidden moats are weakening</div>
+    <p>For much of corporate history, brands were protected by frictions they barely noticed. Production was expensive. Expertise was scarce. Comparison was slow. Distribution was controlled. Customer memory mattered. LLMs weaken all of those protections.</p>
+  </article>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 02 / The Weakening Moats</div><div class="fig-title">Old protections, <em>new conditions</em></div></div>
+    <div class="fig-body">
+      <div class="moats-grid">
+        <div class="mc past"><div class="mc-label">Frictions that used to protect</div>
+          <div class="moat-item"><strong>Production cost</strong> — Copy, code, content and analysis were expensive to make well.</div>
+          <div class="moat-item"><strong>Expertise scarcity</strong> — Domain knowledge was slow and costly to replicate.</div>
+          <div class="moat-item"><strong>Comparison friction</strong> — Evaluating alternatives took time; inertia favoured incumbents.</div>
+          <div class="moat-item"><strong>Distribution control</strong> — Shelves and media were gated; reach was earned or bought.</div>
+          <div class="moat-item"><strong>Customer memory</strong> — Brand recall at the moment of choice drove preference.</div>
+        </div>
+        <div class="moats-arrow"><svg viewBox="0 0 40 20" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="35" y2="10" stroke="currentColor" stroke-width="1.5"/><polyline points="28,3 35,10 28,17" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="mc now"><div class="mc-label">What LLMs do to them</div>
+          <div class="moat-item"><strong>Output gets cheap</strong> — Models produce plausible drafts in seconds. Scarcity erodes.</div>
+          <div class="moat-item"><strong>Expertise gets summoned</strong> — Models compress domain knowledge on demand.</div>
+          <div class="moat-item"><strong>Comparison gets instant</strong> — Alternatives are surfaced, ranked and explained on request.</div>
+          <div class="moat-item"><strong>Discovery gets mediated</strong> — Agents now stand between brand and buyer.</div>
+          <div class="moat-item"><strong>Memory → recommendation</strong> — The customer asks the machine before they remember the brand.</div>
+        </div>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Not every brand is equally exposed.</strong> Coke, Hermès, Costco remain durable. But the conditions around every business change.</div>
+  </div>
+
+  <article class="sec rv">
+    <h2>From brand <em>memory</em> to machine <em>recommendation.</em></h2>
+    <p>For CMOs, the sharpest shift may not be cheaper copy or faster media planning. It is the move from brand memory to machine recommendation. For decades marketing has worked to make brands <strong>remembered by people</strong>. The new question is whether they will be <strong>recommended by machines</strong>.</p>
+    <p>The customer does not have to forget the brand for the economics to shift. The customer merely has to ask the machine first.</p>
+  </article>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 03 / The Shift</div><div class="fig-title">How <em>choice</em> gets made</div></div>
+    <div class="fig-body">
+      <div class="flow">
+        <div class="fn from"><div class="fn-label">Yesterday</div><div class="fn-title">Brand Memory</div><div class="fn-sub">Built in people. Earned through fame, awareness, mental availability and consistent expression.</div></div>
+        <div class="flow-arr"><span>LLM era</span><div class="arr-line"></div></div>
+        <div class="fn to"><div class="fn-label">Today</div><div class="fn-title">Machine Recommendation</div><div class="fn-sub">Built in systems. Earned through evidence, trusted sources, consistent behaviour and category authority.</div></div>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Memory still matters</strong> — but it now competes with an intermediary. The new question is whether the brand is not only remembered, but recommended.</div>
+  </div>
+</div>
+
+<div class="ch-foot">
+  <div class="ch-foot-inner">
+    <a href="#ch1" class="plink" data-mg onclick="goto('ch1')"><span class="pl-label">← Previous</span><span class="pl-title">I · The <em>Finding</em></span><span class="pl-sub">Sixty public companies</span></a>
+    <a href="#ch3" class="plink r" data-mg onclick="goto('ch3')"><span class="pl-label">Next →</span><span class="pl-title">III · The <em>System</em></span><span class="pl-sub">What hardwiring actually is</span></a>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================
+     CHAPTER III
+     ============================================================ -->
+<section id="ch3">
+<div class="opener snap">
+  <div class="opener-bar">
+    <span>Chapter Three of Three <span class="hi">/ 03</span></span>
+    <span>Hardwired № 001 · April 2026</span>
+  </div>
+  <div class="numrow">
+    <div class="big-roman">III</div>
+    <div class="opener-words">
+      <div class="ch-label">The</div>
+      <div class="ch-title"><em>System.</em></div>
+    </div>
+  </div>
+  <div class="opener-thesis">
+    <div class="th-label">Thesis</div>
+    <p class="th-text">What Hardwired is, how its <em>four layers</em> work, and what the CMO does on Monday morning to make the absence of hardwiring <em>visible</em> inside the company.</p>
+  </div>
+</div>
+
+<div class="prose">
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">04</span> What Hardwired measures</div>
+    <h2>Brand in its most serious form. Not expression. <em>Architecture.</em></h2>
+    <p class="lede">Hardwired is the system by which a company protects its valuable difference over time. It has <em>four connected layers</em>.</p>
+  </article>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 04 / Architecture</div><div class="fig-title">The four layers of <em>hardwiring</em></div></div>
+    <div class="fig-body">
+      <div class="arch">
+        <div class="al"><div class="an">04</div><div><div class="aname">Infrastructure</div><div class="aq">Ownership, governance, supply chains, rituals, data, customer relationships and leadership disciplines that make reversal difficult.</div></div><div class="arole">protects</div></div>
+        <div class="al"><div class="an">03</div><div><div class="aname">Deliberate decisions</div><div class="aq">What the company will make, refuse, price, buy, build, slow down or never automate.</div></div><div class="arole">enacts</div></div>
+        <div class="al"><div class="an">02</div><div><div class="aname">Vision</div><div class="aq">How the difference should evolve as conditions change.</div></div><div class="arole">directs</div></div>
+        <div class="al base"><div class="an">01</div><div><div class="aname">Philosophy</div><div class="aq">What makes this company not a commodity.</div></div><div class="arole">grounds</div></div>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Read bottom-up:</strong> philosophy grounds, vision directs, decisions enact, infrastructure protects. A campaign expresses the brand. These four layers govern it.</div>
+  </div>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">05</span> From story to judgment</div>
+    <p>A campaign can dramatise difference. It cannot govern it. A platform can sharpen expression. It cannot tell a company what to do when two good options collide. Hardwired treats narrative not as messaging, but as <strong>decision logic</strong>.</p>
+    <p>Philosophy defines the company's core account of itself: what it believes, where it creates value and what it refuses to become. Vision keeps that philosophy alive under changing conditions. Together they tell the company what matters, what counts as progress, and what must not be dissolved.</p>
+    <p>For CMOs, this is the shift. The future of brand is not simply better storytelling. It is <strong>better protection of the things that make the story true</strong>.</p>
+  </article>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">06</span> The paradox of efficiency</div>
+    <h2>AI can improve the activity while <em>dissolving the identity.</em></h2>
+  </article>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 05 / The Three Tests</div><div class="fig-title">Where LLMs apply <em>pressure</em></div></div>
+    <div class="fig-body">
+      <div class="tri">
+        <div class="test"><div class="tn">Test 01</div><div class="tname">Production</div><div class="tq">If models make copy, code, content, analysis and design cheaper — what remains valuable?</div></div>
+        <div class="test"><div class="tn">Test 02</div><div class="tname">Decision-making</div><div class="tq">If customers ask machines before markets — why are you recommended?</div></div>
+        <div class="test"><div class="tn">Test 03</div><div class="tname">Internal operations</div><div class="tq">If AI makes the company faster — what stops it making the company more generic?</div></div>
+      </div>
+    </div>
+    <div class="fig-cap">A company can produce more content, faster, with cleaner drafts and cheaper workflows, <strong>while slowly becoming less distinctive</strong>. The output improves. The edge disappears.</div>
+  </div>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">07</span> Growth without dilution</div>
+    <h2>What difference can we <em>now scale?</em></h2>
+    <p>A hardwired brand uses AI to scale what makes it distinctive. An un-hardwired brand uses AI to make more things, faster, with less edge. More content. More variants. More automation. More activity. <strong>Less difference.</strong></p>
+  </article>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">08</span> What CMOs should do first</div>
+    <h2>Start with a <em>difference audit.</em></h2>
+  </article>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 06 / Worksheet</div><div class="fig-title">The six-question <em>difference audit</em></div></div>
+    <div class="fig-body">
+      <div class="audit">
+        <div class="ai"><div class="ai-n">01</div><div class="ai-q">What is our valuable <em>difference?</em></div><div class="ai-box"></div></div>
+        <div class="ai"><div class="ai-n">02</div><div class="ai-q">Where does it actually <em>live?</em></div><div class="ai-box"></div></div>
+        <div class="ai"><div class="ai-n">03</div><div class="ai-q">Is it still <em>load-bearing?</em></div><div class="ai-box"></div></div>
+        <div class="ai"><div class="ai-n">04</div><div class="ai-q">What <em>protects</em> it?</div><div class="ai-box"></div></div>
+        <div class="ai"><div class="ai-n">05</div><div class="ai-q">Where is it vulnerable to being copied, averaged, automated or <em>routed around?</em></div><div class="ai-box"></div></div>
+        <div class="ai"><div class="ai-n">06</div><div class="ai-q">What difference can we <em>now scale?</em></div><div class="ai-box"></div></div>
+      </div>
+    </div>
+    <div class="fig-cap"><strong>Answering honestly is harder than it looks.</strong> Most companies discover their "difference" lives only in communications — not in the operating systems that would make it true.</div>
+  </div>
+
+  <div class="fig rv">
+    <div class="fig-top"><div class="fig-label">Fig. 07 / The Hard Test</div><div class="fig-title">Where does the <em>promise</em> actually live?</div></div>
+    <div class="fig-body">
+      <div class="prom">
+        <div class="pr"><div class="pl">Promise intimacy —</div><div class="pq">where is it built into service, data, CRM and decision rights?</div></div>
+        <div class="pr"><div class="pl">Promise craft —</div><div class="pq">where is it protected from speed, scale and automation?</div></div>
+        <div class="pr"><div class="pl">Promise value —</div><div class="pq">where does it live in pricing, sourcing, membership and customer experience?</div></div>
+        <div class="pr"><div class="pl">Promise trust —</div><div class="pq">where is it protected in governance, data, claims, support and AI deployment?</div></div>
+        <div class="pr"><div class="pl">Promise innovation —</div><div class="pq">where does AI help the company extend the promise rather than simply produce noise?</div></div>
+      </div>
+    </div>
+    <div class="fig-cap">The CMO's job is not to own every system. It is to ensure the company sees whether its systems <strong>protect the thing the brand asks people to believe</strong>.</div>
+  </div>
+
+  <article class="sec rv">
+    <div class="eyebrow"><span class="en">09</span> The premium asset</div>
+    <p>As intelligence becomes cheaper, more of the economy becomes searchable, comparable, reproducible and recommendable. Difference does not become less important. It becomes <strong>harder to sustain</strong>.</p>
+    <p>Brand is not the paint on the machine. It is the part of the machine that tells the company what must not be dissolved and what can be grown without dilution.</p>
+  </article>
+</div>
+
+<div class="closing rv">
+  <div class="cl-inner">
+    <div class="cl-eye">&gt; The Boardroom Question</div>
+    <h3 class="cl-h">When everything gets easier to copy,<br><em>what have we made difficult to dissolve</em> —<br>and what can we now <em>scale</em><br>because it is truly ours?</h3>
+    <div class="cl-card">
+      <div class="av">E</div>
+      <div>
+        <div class="av-name">Ed <em>Cotton</em></div>
+        <div class="av-role">Brand Consultant · Inverness Consulting · Brooklyn NY</div>
+      </div>
+      <a href="https://invernessconsult.com" target="_blank" class="av-cta">Visit Inverness →</a>
+    </div>
+  </div>
+</div>
+
+<div class="ch-foot">
+  <div class="ch-foot-inner">
+    <a href="#ch2" class="plink" data-mg onclick="goto('ch2')"><span class="pl-label">← Previous</span><span class="pl-title">II · The <em>Diagnosis</em></span><span class="pl-sub">The CMO's impossible brief</span></a>
+    <a href="#cover" class="plink r" data-mg onclick="goto('cover')"><span class="pl-label">Return →</span><span class="pl-title">Cover &amp; <em>Contents</em></span><span class="pl-sub">Hardwired № 001</span></a>
+  </div>
+</div>
+</section>
+
+<script>
+// Cursor
+const dot = document.getElementById('cur-dot');
+const ring = document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+window.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;
+});
+(function tick(){
+  rx+=(mx-rx)*.16; ry+=(my-ry)*.16;
+  ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+  requestAnimationFrame(tick);
+})();
+document.querySelectorAll('a,button,[data-mg],.al,.test,.ai,.dq,.lr,.mx-cell,.fn').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hov'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hov'));
+});
+
+// Nav
+function goto(id,el){
+  if(el) el.preventDefault && el.preventDefault();
+  const t=document.getElementById(id);
+  if(t) t.scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.navlink').forEach(n=>n.classList.remove('on'));
+  const map={cover:0,ch1:1,ch2:2,ch3:3};
+  const links=document.querySelectorAll('.navlink');
+  if(links[map[id]]) links[map[id]].classList.add('on');
+  return false;
+}
+
+// Progress
+const pb=document.getElementById('prog-bar');
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  pb.style.width=Math.min(100,(h.scrollTop/(h.scrollHeight-h.clientHeight))*100)+'%';
+},{passive:true});
+
+// Reveal
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('lit');obs.unobserve(e.target);}});
+},{threshold:.1,rootMargin:'0px 0px -50px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+
+// Mouse-follow gradient on tiles / plinks
+document.querySelectorAll('[data-mg],.plink').forEach(t=>{
+  t.addEventListener('mousemove',e=>{
+    const r=t.getBoundingClientRect();
+    t.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+    t.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+  });
+});
+
+// Interactive distmap
+const dqs=document.querySelectorAll('.dq');
+const lrs=document.querySelectorAll('.lr');
+const dots=document.querySelectorAll('.dot');
+function activateQ(q){
+  dqs.forEach(d=>d.classList.toggle('on',d.dataset.q===q));
+  lrs.forEach(l=>l.classList.toggle('on',l.dataset.l===q));
+  dots.forEach(d=>{d.style.opacity=(d.dataset.q===q)?'1':'0.2';});
+}
+function clearQ(){
+  dqs.forEach(d=>d.classList.remove('on'));
+  lrs.forEach(l=>l.classList.remove('on'));
+  dots.forEach(d=>{d.style.opacity='';});
+}
+dqs.forEach(d=>{
+  d.addEventListener('mouseenter',()=>activateQ(d.dataset.q));
+  d.addEventListener('mouseleave',clearQ);
+  d.addEventListener('click',()=>{
+    const already=d.classList.contains('on')&&[...lrs].some(l=>l.classList.contains('on'));
+    already?clearQ():activateQ(d.dataset.q);
+  });
+});
+lrs.forEach(l=>{
+  l.addEventListener('mouseenter',()=>activateQ(l.dataset.l));
+  l.addEventListener('mouseleave',clearQ);
+});
+
+// Scroll-reveal pullquote word by word
+const pt=document.getElementById('pt');
+if(pt){
+  const wrap=document.createElement('div');
+  wrap.innerHTML=pt.innerHTML;
+  function splitTextNodes(node){
+    [...node.childNodes].forEach(c=>{
+      if(c.nodeType===3){
+        const f=document.createDocumentFragment();
+        c.textContent.split(/(\s+)/).forEach(p=>{
+          if(!p.trim()){f.appendChild(document.createTextNode(p));}
+          else{const s=document.createElement('span');s.className='sw';s.textContent=p;f.appendChild(s);}
+        });
+        c.replaceWith(f);
+      } else if(c.nodeType===1) splitTextNodes(c);
+    });
+  }
+  splitTextNodes(wrap);
+  pt.innerHTML=wrap.innerHTML;
+  const words=pt.querySelectorAll('.sw');
+  function updatePull(){
+    const r=pt.getBoundingClientRect();
+    const progress=(window.innerHeight*.75-r.top)/(window.innerHeight*.5);
+    const target=Math.floor(Math.max(0,Math.min(1,progress))*words.length);
+    words.forEach((w,i)=>w.classList.toggle('lit',i<target));
+  }
+  window.addEventListener('scroll',updatePull,{passive:true});
+  updatePull();
+}
+
+// Update nav on scroll
+const sections=[{id:'cover',i:0},{id:'ch1',i:1},{id:'ch2',i:2},{id:'ch3',i:3}];
+const navLinks=document.querySelectorAll('.navlink');
+const scrollObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting&&e.intersectionRatio>.3){
+      const sec=sections.find(s=>s.id===e.target.id);
+      if(sec){navLinks.forEach((n,i)=>n.classList.toggle('on',i===sec.i));}
+    }
+  });
+},{threshold:.3});
+document.querySelectorAll('#cover,#ch1,#ch2,#ch3').forEach(el=>scrollObs.observe(el));
+</script>
+</body>
+</html>
